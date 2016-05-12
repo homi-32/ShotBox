@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 /**
  * Created by homi on 4/14/16.
  */
-//TODO: protect all calls for null occurrence
 class FilesCrawler {
     private static final Logger logger = Logger.getLogger(FilesCrawler.class);
 
@@ -76,121 +75,9 @@ class FilesCrawler {
         return;
     }
 
-    /*
-    TODO: rewrite this
 
-    Method is actually badly broken. I need to rewrite it
-     */
     public List<String> getPresentedInterfaces(){
         logger.info("Method called.");
-
-        //TODO: clean this mess:
-
-        //-------------------------------------------------------------------------------------------------//
-        //TODO: tu je tento problem, uz absolutne netusim, ako to vyriesit
-        /*
-        Issue je take, ze nasledujuce objekty "pathToInterfacesFolder" nie su null, ked si spustim debug mod v Idei
-         aaaale, ked si buildnem jarko, spustim ho, tak mi null davaju
-         je jedno ci dam argument ".", alebo "./" alebo ""; vzdy mi vracaju null
-
-         Co tymto chcel dosiahnut: potrebujem sa dostat do jarka, ktore spusta.
-         Chcem citat obsah tohto jarka, aby som si nasiel svoju dependency kniznicu
-         s interface-mi, aby som ich mohol nacitat a pracovat s nim
-         */
-
-//        URL pathToInterfacesFolder = this.getClass().getClassLoader().getResource("."/*"sk.homisolutions.shotbox"*//*Constants.PACKAGE_NAME_WITH_INTERFACES*/);
-        /*
-        URL pathToInterfacesFolder1 = ClassLoader.getSystemClassLoader().getResource(".");
-        URL pathToInterfacesFolder2 = ClassLoader.getSystemResource(".");
-        URL pathToInterfacesFolder3 = this.getClass().getClassLoader().getResource(".");
-        URL pathToInterfacesFolder4 = this.getClass().getResource(".");
-        System.out.println("FilesCrawler: getPresentedInterfaces: URL to interfaces folder: \""
-                +pathToInterfacesFolder1 +"\"--\""
-                +pathToInterfacesFolder2 +"\"--\""
-                +pathToInterfacesFolder3 +"\"--\""
-                +pathToInterfacesFolder4);
-
-        nakoniec som toto riesenie zavrhol, lebo nefunguje po vytvoreni binarky (jarka)
-        a uz fakt netusim precooooo!!!!!!!!!!
-
-        TODO: bud to zmazat, alebo tie komentare aspon prelozit
-        */
-        //-------------------------------------------------------------------------------------------------//
-
-
-        //-------------------------------------------------------------------------------------------------//
-        /*
-        This solution is from :
-        http://stackoverflow.com/questions/320542/how-to-get-the-path-of-a-running-jar-file
-         */
-        /*
-        URL urlToExecutedJarFile = this.getClass().getProtectionDomain().getCodeSource().getLocation();
-        */
-
-
-        /*
-        Purpose is: find included interfaces (in maven as dependency), which are used as API for ShotBox modules
-        I need to load this interfaces and compare them with interfaces implemented by loaded classes
-        This comparison is used to filter loaded classes and saves references only to "main" classes,
-        which i can instantiate (   Interface variable = new LoadedClass()   )
-        and use them (   variable.useMethodDefinedByInterface()  )
-
-        So I need to calculate some path to this interfaces, and this is only working solution, I could wrote:
-         */
-        /*
-        String pathToInterfacesFolder = urlToExecutedJarFile.getPath()
-                +File.separator
-                +(Constants.PACKAGE_NAME_WITH_INTERFACES).replace(".",File.separator)
-                ;
-        */
-        //-------------------------------------------------------------------------------------------------//
-
-
-        //-------------------------------------------------------------------------------------------------//
-        /* ten zvysok, ale som zistil, ze mi to asi netreba takto komplikovane riesit
-
-
-
-
-        System.out.println("FilesCrawler: getPresentedInterfaces: parameter for finding URL of interfaces folder: " +pathToInterfacesFolder);
-
-        File packageFolder = new File(pathToInterfacesFolder);
-
-        List<String> interfacesPaths = crawlingDirectory(packageFolder);
-
-        List<String> interfacesNames = getNameFromFilePath(interfacesPaths);
-
-        ClassLoader cl = this.getClass().getClassLoader();
-            interfacesNames = new ArrayList<>(interfacesNames.stream().filter(s -> {
-                try {
-                    return cl.loadClass(s).isInterface();
-                } catch (ClassNotFoundException e) {
-                    System.out.println("FilesCrawler: getPresentedInterfaces: ClassNotFoundException");
-                    e.printStackTrace();
-                }
-                    return false;
-
-            }).collect(Collectors.toList()));
-
-        System.out.println("FilesCrawler: getPresentedInterfaces: loaded interfaces:");
-        interfacesNames.forEach(System.out::println);
-       */
-        //-------------------------------------------------------------------------------------------------//
-
-
-        /*
-http://stackoverflow.com/questions/14314789/using-google-reflections-to-get-a-list-of-all-classes-but-java-seems-to-be
-
-Google Reflections can be used to get all classes, including java.*, although it's not its primarily use.
-
-Reflections reflections = new Reflections(
-    ClasspathHelper.forClass(Object.class),
-    new SubTypesScanner(false));
-And than:
-
-Set<String> allClasses =
-    reflections.getStore().getSubTypesOf(Object.class.getName());
-         */
 
         /*
         ------------------------------------------------------------------------------------------------------------
@@ -228,6 +115,11 @@ Set<String> allClasses =
         return interfacesNames;
     }
 
+    /*
+
+    Do not need this method any more
+     */
+    /*
     private List<String> getNameFromFilePath(List<String> interfacesPaths) {
         logger.info("Method called.");
 
@@ -253,6 +145,7 @@ Set<String> allClasses =
         logger.info("Method ends.");
         return ifacesNames;
     }
+*/
 
     private void filterFiles() {
         logger.info("Method called.");

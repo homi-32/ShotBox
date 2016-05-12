@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 /**
  * Created by homi on 4/3/16.
  */
-//TODO: protect all calls for null occurrence
 class LibsLoader implements LibrariesLoader {
 
     private static final Logger logger = Logger.getLogger(LibsLoader.class);
@@ -190,7 +189,6 @@ class LibsLoader implements LibrariesLoader {
         this.relevantClasses.addAll(allClasses.stream()
                     .filter(c -> {
                         logger.debug("Class " +c.getName() +" is going to be analyzed.");
-//                        interfacesFullNames.contains(c.getName())
                         logger.debug("Reading interfaces of this class (If class implements any interface) : ");
                         for(Class iface: c.getInterfaces()){
                             logger.debug("Analyzed interface: " +iface.getName());
@@ -352,14 +350,12 @@ class LibsLoader implements LibrariesLoader {
                 allClasses.add(c);
                 logger.info("Class is added to list");
             } catch (MalformedURLException e) {
-                //TODO: rewrite this error message handling
-                logger.error("MalformedURLException");
+                logger.error("     Exception throwed: MalformedURLException");
                 logger.error("Cause: " +e.getCause());
 
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
-                //TODO: rewrite this error message handling
-                logger.error("ClassNotFoundException");
+                logger.error("     Exception throwed: ClassNotFoundException");
                 logger.error("Cause: " +e.getCause());
                 e.printStackTrace();
             }
@@ -489,13 +485,11 @@ class LibsLoader implements LibrariesLoader {
                 }
 
             } catch (IOException e) {
-                //TODO: rewrite this error message handling
-                logger.error("IOEXCEPTION");
+                logger.error("     Exception throwed: IOException");
                 logger.error("Cause: " +e.getCause());
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
-                //TODO: rewrite this error message handling
-                logger.error("CLASSNOTFOUNFEXCEPTION");
+                logger.error("     Exception throwed: ClassNotFoundExceeption");
                 logger.error("Cause: " +e.getCause());
                 e.printStackTrace();
             }

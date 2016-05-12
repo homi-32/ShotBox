@@ -152,17 +152,17 @@ class LibsLoader implements LibrariesLoader {
     private void filterClasses() {
         logger.info("Method called.");
 
-        logger.info("Getting presented interfaces (specification for external modules).");
+        logger.info("Getting presented interfaces (api for external modules).");
         List<String> interfacesFullNames = this.filesCrawler.getPresentedInterfaces();
 
         if(interfacesFullNames==null){
-            logger.error("No interfaces (specification) could be loaded. List is null. " +
+            logger.error("No interfaces (api) could be loaded. List is null. " +
                     "All classes will be marked as relevant. Filter process is quitting.");
             this.relevantClasses.addAll(allClasses);
             return;
         }
         if(interfacesFullNames.size()==0){
-            logger.error("No interfaces (specification/api) could be loaded. List is empty. " +
+            logger.error("No interfaces (api) could be loaded. List is empty. " +
                     "All classes will be marked as relevant. Filter process is quitting.");
             this.relevantClasses.addAll(allClasses);
             return;
@@ -170,8 +170,14 @@ class LibsLoader implements LibrariesLoader {
 
         //TODO: ryza tu je nejaka
 
-        logger.info("Interfaces (specification) are loaded. All loaded classes are going to be filtered. " +
+        logger.info("Interfaces (api) are loaded. All loaded classes are going to be filtered. " +
                 "Relevant classes list will be created.");
+
+        logger.info("-----------TESTING--------------");
+        allClasses.forEach(c->{logger.info(c.getName());});
+        logger.info("-----------TESTING CONTINUES--------------");
+        interfacesFullNames.forEach(logger::info);
+        logger.info("-----------TESTING ENDS--------------");
         this.relevantClasses.addAll(allClasses.stream()
                     .filter(c -> interfacesFullNames.contains(c.getName()))
                     .collect(Collectors.toList())
@@ -262,8 +268,8 @@ class LibsLoader implements LibrariesLoader {
 
             String directoryPath = filePath.substring(0, filePath.indexOf(Constants.PATH_TO_CLASSES_DIR) + Constants.PATH_TO_CLASSES_DIR.length());
             String className = filePath.substring(filePath.indexOf(Constants.PATH_TO_CLASSES_DIR) + Constants.PATH_TO_CLASSES_DIR.length() + 1);
-            className = className.substring(0, className.indexOf(""));
-            className = className.replace(File.separator, "");
+            className = className.substring(0, className.indexOf("."));
+            className = className.replace(File.separator, ".");
 
             logger.info("Calcualted class path: " +
                     directoryPath +" : " +
@@ -316,10 +322,13 @@ class LibsLoader implements LibrariesLoader {
             } catch (MalformedURLException e) {
                 //TODO: rewrite this error message handling
                 logger.error("MalformedURLException");
+                logger.error("Cause: " +e.getCause());
+
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
                 //TODO: rewrite this error message handling
                 logger.error("ClassNotFoundException");
+                logger.error("Cause: " +e.getCause());
                 e.printStackTrace();
             }
         }
@@ -449,10 +458,12 @@ class LibsLoader implements LibrariesLoader {
             } catch (IOException e) {
                 //TODO: rewrite this error message handling
                 logger.error("IOEXCEPTION");
+                logger.error("Cause: " +e.getCause());
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
                 //TODO: rewrite this error message handling
                 logger.error("CLASSNOTFOUNFEXCEPTION");
+                logger.error("Cause: " +e.getCause());
                 e.printStackTrace();
             }
         }

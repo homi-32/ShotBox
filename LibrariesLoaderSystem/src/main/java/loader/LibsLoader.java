@@ -2,7 +2,7 @@ package loader;
 
 import constants.Constants;
 import org.apache.log4j.Logger;
-import sk.homisolutions.shotbox.librariesloader.LibrariesLoader;
+import sk.homisolutions.shotbox.api.external.librariesloader.LibrariesLoader;
 
 import java.io.File;
 import java.io.IOException;

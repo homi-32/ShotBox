@@ -1,6 +1,6 @@
 package GoodPackage;
 
-import sk.homisolutions.shotbox.trigger.Trigger;
+import sk.homisolutions.shotbox.api.external.trigger.Trigger;
 
 /**
  * Created by homi on 4/20/16.

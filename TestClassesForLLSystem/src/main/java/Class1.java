@@ -1,4 +1,4 @@
-import sk.homisolutions.shotbox.camera.Camera;
+import sk.homisolutions.shotbox.api.external.camera.Camera;
 
 /**
  * Created by homi on 4/20/16.

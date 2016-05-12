@@ -1,4 +1,4 @@
-package sk.homisolutions.shotbox.trigger;
+package sk.homisolutions.shotbox.api.external.trigger;
 
 /**
  * Created by homi on 4/20/16.

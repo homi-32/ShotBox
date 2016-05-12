@@ -1,4 +1,4 @@
-package sk.homisolutions.shotbox.librariesloader;
+package sk.homisolutions.shotbox.api.external.librariesloader;
 
 import java.util.List;
 

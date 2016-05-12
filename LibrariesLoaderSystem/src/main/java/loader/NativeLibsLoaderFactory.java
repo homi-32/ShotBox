@@ -1,7 +1,7 @@
 package loader;
 
 import org.apache.log4j.Logger;
-import sk.homisolutions.shotbox.librariesloader.LibrariesLoader;
+import sk.homisolutions.shotbox.api.external.librariesloader.LibrariesLoader;
 
 /**
  * Created by homi on 4/27/16.

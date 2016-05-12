@@ -1,4 +1,4 @@
-package sk.homisolutions.shotbox.camera;
+package sk.homisolutions.shotbox.api.external.camera;
 
 /**
  * Created by homi on 4/20/16.

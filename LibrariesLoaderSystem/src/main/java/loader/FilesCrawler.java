@@ -210,14 +210,16 @@ Set<String> allClasses =
         Reflections reflections = new Reflections(new ConfigurationBuilder()
                 .setScanners(new SubTypesScanner(false /* don't exclude Object.class */), new ResourcesScanner())
                 .setUrls(ClasspathHelper.forClassLoader(classLoadersList.toArray(new ClassLoader[0])))
-                .filterInputsBy(new FilterBuilder().include(FilterBuilder.prefix("sk.homisolutions.shotbox"))));
+                .filterInputsBy(new FilterBuilder().include(FilterBuilder.prefix(Constants.PACKAGE_NAME_WITH_INTERFACES))));
 
         Set<Class<?>> classes = reflections.getSubTypesOf(Object.class);
         /* and it looks awesome
         --------------------------------------------------------------------------------------------------------*/
 
-        //TODO: do something with this log
-        logger.info(classes.size());
+        logger.info("Loaded interfaces from: " +Constants.PACKAGE_NAME_WITH_INTERFACES);
+        logger.info("Number of interfaces: " +classes.size());
+        logger.info("Loaded interfaces list: ");
+        classes.forEach(logger::info);
 
         List<String> interfacesNames = new ArrayList<>();
 

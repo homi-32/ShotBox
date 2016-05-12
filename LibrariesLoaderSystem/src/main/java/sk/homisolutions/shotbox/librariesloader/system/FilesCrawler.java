@@ -78,11 +78,9 @@ class FilesCrawler {
 
     /*
     TODO: rewrite this
-    TODO: when method will be finished, remove @Deprecated annotation
 
     Method is actually badly broken. I need to rewrite it
      */
-    @Deprecated
     public List<String> getPresentedInterfaces(){
         logger.info("Method called.");
 

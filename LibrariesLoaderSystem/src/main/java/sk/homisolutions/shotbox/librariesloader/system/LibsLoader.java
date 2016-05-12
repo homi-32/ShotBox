@@ -148,7 +148,6 @@ class LibsLoader implements LibrariesLoader {
     /*
     Until the getPresentedInterface will not be repaired, this method is useless too.
      */
-    @Deprecated
     private void filterClasses() {
         logger.info("Method called.");
 
@@ -168,23 +167,57 @@ class LibsLoader implements LibrariesLoader {
             return;
         }
 
-        //TODO: ryza tu je nejaka
-
         logger.info("Interfaces (api) are loaded. All loaded classes are going to be filtered. " +
                 "Relevant classes list will be created.");
 
-        logger.info("-----------TESTING--------------");
-        allClasses.forEach(c->{logger.info(c.getName());});
-        logger.info("-----------TESTING CONTINUES--------------");
-        interfacesFullNames.forEach(logger::info);
-        logger.info("-----------TESTING ENDS--------------");
+        logger.debug("All classes are going to be filtered by loaded interfaces. " +
+                "Relevant classes list will be created.");
+
+        /*
+        Process of filtering classes by interfaces:
+
+        For every loaded class, list of implemented interfaces is get.
+        Every interface for every class is compared with every loaded interface from library, if there will be match.
+        If yes, class implements expected interface and class is relevant. If class does not implement any of
+        loaded interface from library, class is not relevant.
+
+        So..... From All classes list is created stream and this stream is filtered. Filter decide,
+        if class is relevant or not. If yes, class is added to collection, if no, class is not important.
+        Created collection is added to relevant classes list.
+        What filter does is described above.
+         */
+
         this.relevantClasses.addAll(allClasses.stream()
-                    .filter(c -> interfacesFullNames.contains(c.getName()))
+                    .filter(c -> {
+                        logger.debug("Class " +c.getName() +" is going to be analyzed.");
+//                        interfacesFullNames.contains(c.getName())
+                        logger.debug("Reading interfaces of this class (If class implements any interface) : ");
+                        for(Class iface: c.getInterfaces()){
+                            logger.debug("Analyzed interface: " +iface.getName());
+                            if(interfacesFullNames.contains(iface.getName())){
+                                logger.debug("Interface match with loaded interfaces list. " +
+                                        "Class is relevant and will be added to relevant classes list.");
+                                return true;
+                            }else{
+                                logger.debug("Interface did not match with loaded interfaces list.");
+                            }
+                        }
+                        logger.debug("Analyzing class " +c.getName() +" finished.");
+                        return false;
+                    } )
                     .collect(Collectors.toList())
         );
+        /*
+        Filtering ends.
+         */
 
+        logger.info("Creating relevant loaded classes list is finished:");
 
-        logger.info("Creating relevant loaded classes list finished.");
+        if(this.relevantClasses.size() == 0){
+            logger.warn("Relevant classes list is empty. " +
+                    "There is no class, which can be used and empty list will be returned.");
+        }
+
         this.relevantClasses.forEach(logger::debug);
 
         logger.info("Method ends.");
@@ -194,7 +227,6 @@ class LibsLoader implements LibrariesLoader {
         logger.info("Method called.");
 
         if(jars == null || classes == null){
-            //TODO: should be there some exception ??
             logger.error("Some programmer did something wrong. Input arrays are null: " +
                     "jars-" +jars +";" +
                     "classes-" +classes + " " +
@@ -273,7 +305,7 @@ class LibsLoader implements LibrariesLoader {
 
             logger.info("Calcualted class path: " +
                     directoryPath +" : " +
-                    className);
+                    className +" -");
             try {
                 if(!actualDirPath.equals(directoryPath)) {
                     logger.info("New dir path is calculated for ClassLoader: '" +directoryPath
@@ -334,6 +366,7 @@ class LibsLoader implements LibrariesLoader {
         }
 
         logger.debug("Classes in list:");
+
         allClasses.forEach(logger::debug);
 
         logger.info("Method ends.");

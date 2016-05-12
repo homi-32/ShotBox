@@ -1,6 +1,6 @@
-import loader.NativeLibsLoaderFactory;
+import sk.homisolutions.shotbox.librariesloader.system.NativeLibsLoaderFactory;
 import org.apache.log4j.Logger;
-import sk.homisolutions.shotbox.api.external.librariesloader.LibrariesLoader;
+import sk.homisolutions.shotbox.librariesloader.api.LibrariesLoader;
 
 import java.util.List;
 

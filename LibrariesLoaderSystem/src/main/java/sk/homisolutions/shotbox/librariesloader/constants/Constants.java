@@ -1,4 +1,4 @@
-package constants;
+package sk.homisolutions.shotbox.librariesloader.constants;
 
 import java.io.File;
 

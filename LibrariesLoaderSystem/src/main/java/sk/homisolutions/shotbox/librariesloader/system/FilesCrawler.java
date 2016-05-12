@@ -1,7 +1,6 @@
-package loader;
+package sk.homisolutions.shotbox.librariesloader.system;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import constants.Constants;
+import sk.homisolutions.shotbox.librariesloader.constants.Constants;
 import org.apache.log4j.Logger;
 import org.reflections.Reflections;
 import org.reflections.scanners.ResourcesScanner;
@@ -10,14 +9,8 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
-import javax.tools.JavaCompiler;
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.sql.Ref;
 import java.util.*;
-import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 /**
@@ -85,12 +78,15 @@ class FilesCrawler {
 
     /*
     TODO: rewrite this
+    TODO: when method will be finished, remove @Deprecated annotation
 
     Method is actually badly broken. I need to rewrite it
      */
     @Deprecated
     public List<String> getPresentedInterfaces(){
         logger.info("Method called.");
+
+        //TODO: clean this mess:
 
         //-------------------------------------------------------------------------------------------------//
         //TODO: tu je tento problem, uz absolutne netusim, ako to vyriesit
@@ -216,13 +212,19 @@ Set<String> allClasses =
         /* and it looks awesome
         --------------------------------------------------------------------------------------------------------*/
 
-        logger.info("Loaded interfaces from: " +Constants.PACKAGE_NAME_WITH_INTERFACES);
-        logger.info("Number of interfaces: " +classes.size());
-        logger.info("Loaded interfaces list: ");
-        classes.forEach(logger::info);
+        logger.debug("Loaded interfaces from: " +Constants.PACKAGE_NAME_WITH_INTERFACES);
+        logger.debug("Number of interfaces: " +classes.size());
+        logger.debug("Loaded interfaces list: ");
+        classes.forEach(logger::debug);
 
         List<String> interfacesNames = new ArrayList<>();
+        classes.forEach(x->{interfacesNames.add(x.getName());});
 
+
+        logger.info("Resolved interfaces from: " +Constants.PACKAGE_NAME_WITH_INTERFACES);
+        logger.info("Number of interfaces: " +interfacesNames.size());
+        logger.info("Resolved interfaces list: ");
+        interfacesNames.forEach(logger::info);
 
         logger.info("Method ends.");
         return interfacesNames;
@@ -236,7 +238,7 @@ Set<String> allClasses =
         for (String path: interfacesPaths) {
             logger.info("Analyzed path: " +path);
 
-            String name = Constants.PACKAGE_NAME_WITH_INTERFACES + "."
+            String name = Constants.PACKAGE_NAME_WITH_INTERFACES + ""
                     +
                     path.substring(
                             path.lastIndexOf(Constants.PACKAGE_NAME_WITH_INTERFACES) + Constants.PACKAGE_NAME_WITH_INTERFACES.length() + 1,

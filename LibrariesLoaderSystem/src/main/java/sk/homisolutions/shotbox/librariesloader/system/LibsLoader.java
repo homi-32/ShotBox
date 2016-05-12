@@ -1,8 +1,8 @@
-package loader;
+package sk.homisolutions.shotbox.librariesloader.system;
 
-import constants.Constants;
+import sk.homisolutions.shotbox.librariesloader.constants.Constants;
 import org.apache.log4j.Logger;
-import sk.homisolutions.shotbox.api.external.librariesloader.LibrariesLoader;
+import sk.homisolutions.shotbox.librariesloader.api.LibrariesLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -162,11 +162,13 @@ class LibsLoader implements LibrariesLoader {
             return;
         }
         if(interfacesFullNames.size()==0){
-            logger.error("No interfaces (specification) could be loaded. List is empty. " +
+            logger.error("No interfaces (specification/api) could be loaded. List is empty. " +
                     "All classes will be marked as relevant. Filter process is quitting.");
             this.relevantClasses.addAll(allClasses);
             return;
         }
+
+        //TODO: ryza tu je nejaka
 
         logger.info("Interfaces (specification) are loaded. All loaded classes are going to be filtered. " +
                 "Relevant classes list will be created.");
@@ -189,7 +191,7 @@ class LibsLoader implements LibrariesLoader {
             //TODO: should be there some exception ??
             logger.error("Some programmer did something wrong. Input arrays are null: " +
                     "jars-" +jars +";" +
-                    "classes-" +classes +". " +
+                    "classes-" +classes + " " +
                     "Without this lists, method is useless, so application will terminate this process.");
             return;
         }
@@ -260,8 +262,8 @@ class LibsLoader implements LibrariesLoader {
 
             String directoryPath = filePath.substring(0, filePath.indexOf(Constants.PATH_TO_CLASSES_DIR) + Constants.PATH_TO_CLASSES_DIR.length());
             String className = filePath.substring(filePath.indexOf(Constants.PATH_TO_CLASSES_DIR) + Constants.PATH_TO_CLASSES_DIR.length() + 1);
-            className = className.substring(0, className.indexOf("."));
-            className = className.replace(File.separator, ".");
+            className = className.substring(0, className.indexOf(""));
+            className = className.replace(File.separator, "");
 
             logger.info("Calcualted class path: " +
                     directoryPath +" : " +

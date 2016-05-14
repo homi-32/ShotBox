@@ -1,18 +1,15 @@
 package sk.homisolutions.shotbox.librariesloader.system;
 
-import sk.homisolutions.shotbox.librariesloader.constants.Constants;
+import sk.homisolutions.shotbox.librariesloader.settings.Constants;
 import org.apache.log4j.Logger;
 import sk.homisolutions.shotbox.librariesloader.api.LibrariesLoader;
+import sk.homisolutions.shotbox.librariesloader.settings.Setup;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -20,9 +17,11 @@ import java.util.stream.Collectors;
 /**
  * Created by homi on 4/3/16.
  */
+//TODO: add e.getMessage to all catch
 class LibsLoader implements LibrariesLoader {
 
     private static final Logger logger = Logger.getLogger(LibsLoader.class);
+    private static final ExceptionHandling exceptionHandler = ExceptionHandling.getINSTANCE(LibsLoader.class);
 
     private FilesCrawler filesCrawler;
     private List<String> relevantFiles = new ArrayList<>();
@@ -32,21 +31,25 @@ class LibsLoader implements LibrariesLoader {
     public LibsLoader(){
         logger.info("Object is being initialized.");
 
+        logger.info("Loader is going to load LLS settings from config file.");
+        InitApplicationSetup.init();
+
         logger.info("Creating FilesCrawler object.");
         this.filesCrawler = new FilesCrawler();
 
         logger.debug("Libraries from directory are going to be indexed.");
         gettingRelevantFiles();
 
-        logger.info("Classes and jars in "+ Constants.PATH_TO_CLASSES_DIR +" are going to be loaded.");
+        logger.info("Classes and jars in "+ Setup.LIBRARY_FOLDER +" are going to be loaded.");
         loadClasses();
         logger.info("Classes and jars are loaded.");
         logger.info("Initializing object ends.");
     }
 
+
     private void gettingRelevantFiles() {
         logger.info("Method called.");
-        logger.info("Files in directory '" + Constants.PATH_TO_CLASSES_DIR +"' are going to be scanned.");
+        logger.info("Files in directory '" + Setup.LIBRARY_FOLDER +"' are going to be scanned.");
         this.relevantFiles = this.filesCrawler.getRelevantFilesFromDir();
         if(this.relevantFiles == null){
             logger.fatal("Returned list with files' paths is null. There is some big issue, wich need to be resolved. "+
@@ -57,7 +60,7 @@ class LibsLoader implements LibrariesLoader {
             logger.warn("Returned list with relevant files' paths is empty. " +
                     "There are no files, which can be loaded from directory.");
         }
-        logger.info("Files in '" + Constants.PATH_TO_CLASSES_DIR +"' are now scanned." +
+        logger.info("Files in '" + Setup.LIBRARY_FOLDER +"' are now scanned." +
                 "Relevant files number is: " +this.relevantFiles.size());
         logger.info("Method ends.");
     }
@@ -296,8 +299,8 @@ class LibsLoader implements LibrariesLoader {
         correct way to calculate class path :
          */
 
-            String directoryPath = filePath.substring(0, filePath.indexOf(Constants.PATH_TO_CLASSES_DIR) + Constants.PATH_TO_CLASSES_DIR.length());
-            String className = filePath.substring(filePath.indexOf(Constants.PATH_TO_CLASSES_DIR) + Constants.PATH_TO_CLASSES_DIR.length() + 1);
+            String directoryPath = filePath.substring(0, filePath.indexOf(Setup.LIBRARY_FOLDER) + Setup.LIBRARY_FOLDER.length());
+            String className = filePath.substring(filePath.indexOf(Setup.LIBRARY_FOLDER) + Setup.LIBRARY_FOLDER.length() + 1);
             className = className.substring(0, className.indexOf("."));
             className = className.replace(File.separator, ".");
 
@@ -350,14 +353,9 @@ class LibsLoader implements LibrariesLoader {
                 allClasses.add(c);
                 logger.info("Class is added to list");
             } catch (MalformedURLException e) {
-                logger.error("     Exception throwed: MalformedURLException");
-                logger.error("Cause: " +e.getCause());
-
-                e.printStackTrace();
+                exceptionHandler.handle(e);
             } catch (ClassNotFoundException e) {
-                logger.error("     Exception throwed: ClassNotFoundException");
-                logger.error("Cause: " +e.getCause());
-                e.printStackTrace();
+                exceptionHandler.handle(e);
             }
         }
 
@@ -485,13 +483,9 @@ class LibsLoader implements LibrariesLoader {
                 }
 
             } catch (IOException e) {
-                logger.error("     Exception throwed: IOException");
-                logger.error("Cause: " +e.getCause());
-                e.printStackTrace();
+                exceptionHandler.handle(e);
             } catch (ClassNotFoundException e) {
-                logger.error("     Exception throwed: ClassNotFoundExceeption");
-                logger.error("Cause: " +e.getCause());
-                e.printStackTrace();
+                exceptionHandler.handle(e);
             }
         }
 

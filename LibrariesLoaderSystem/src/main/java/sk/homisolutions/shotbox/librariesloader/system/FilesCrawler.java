@@ -1,6 +1,6 @@
 package sk.homisolutions.shotbox.librariesloader.system;
 
-import sk.homisolutions.shotbox.librariesloader.constants.Constants;
+import sk.homisolutions.shotbox.librariesloader.settings.Constants;
 import org.apache.log4j.Logger;
 import org.reflections.Reflections;
 import org.reflections.scanners.ResourcesScanner;
@@ -8,6 +8,7 @@ import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
+import sk.homisolutions.shotbox.librariesloader.settings.Setup;
 
 import java.io.File;
 import java.util.*;
@@ -79,6 +80,14 @@ class FilesCrawler {
     public List<String> getPresentedInterfaces(){
         logger.info("Method called.");
 
+
+        if(Setup.PACKAGE_WITH_APIs == null || Setup.PACKAGE_WITH_APIs.equals("")){
+            logger.error("Path to package with interfaces is null or not defined. " +
+                    "No interfaces will be loaded. Empty list will be returned.");
+            return new ArrayList<>();
+        }
+        String packageWithInterfaces = Setup.PACKAGE_WITH_APIs;
+
         /*
         ------------------------------------------------------------------------------------------------------------
             This solutions is from:
@@ -91,13 +100,13 @@ class FilesCrawler {
         Reflections reflections = new Reflections(new ConfigurationBuilder()
                 .setScanners(new SubTypesScanner(false /* don't exclude Object.class */), new ResourcesScanner())
                 .setUrls(ClasspathHelper.forClassLoader(classLoadersList.toArray(new ClassLoader[0])))
-                .filterInputsBy(new FilterBuilder().include(FilterBuilder.prefix(Constants.PACKAGE_NAME_WITH_INTERFACES))));
+                .filterInputsBy(new FilterBuilder().include(FilterBuilder.prefix(packageWithInterfaces))));
 
         Set<Class<?>> classes = reflections.getSubTypesOf(Object.class);
         /* and it looks awesome
         --------------------------------------------------------------------------------------------------------*/
 
-        logger.debug("Loaded interfaces from: " +Constants.PACKAGE_NAME_WITH_INTERFACES);
+        logger.debug("Loaded interfaces from: " +Setup.PACKAGE_WITH_APIs);
         logger.debug("Number of interfaces: " +classes.size());
         logger.debug("Loaded interfaces list: ");
         classes.forEach(logger::debug);
@@ -106,7 +115,7 @@ class FilesCrawler {
         classes.forEach(x->{interfacesNames.add(x.getName());});
 
 
-        logger.info("Resolved interfaces from: " +Constants.PACKAGE_NAME_WITH_INTERFACES);
+        logger.info("Resolved interfaces from: " +Setup.PACKAGE_WITH_APIs);
         logger.info("Number of interfaces: " +interfacesNames.size());
         logger.info("Resolved interfaces list: ");
         interfacesNames.forEach(logger::info);
@@ -177,9 +186,9 @@ class FilesCrawler {
 
     private void getAllFilesFromDir(){
         logger.info("Method called.");
-        logger.info("Scanning files in \"" + Constants.PATH_TO_CLASSES_DIR +"\" started.");
+        logger.info("Scanning files in \"" + Constants.PATH_TO_LIBRARIES_DIR +"\" started.");
 
-        File folder = new File(Constants.PATH_TO_CLASSES_DIR);
+        File folder = new File(Constants.PATH_TO_LIBRARIES_DIR);
         if(folder == null){
             logger.fatal("Directory path is wrong or null. Application could not open the directory and read files. " +
                     "Application will now interrupt scanning process");

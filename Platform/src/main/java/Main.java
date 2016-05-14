@@ -1,4 +1,4 @@
-import sk.homisolutions.shotbox.librariesloader.system.NativeLibsLoaderFactory;
+import sk.homisolutions.shotbox.librariesloader.classloading_system.NativeLibsLoaderFactory;
 import org.apache.log4j.Logger;
 import sk.homisolutions.shotbox.librariesloader.api.LibrariesLoader;
 

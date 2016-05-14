@@ -6,7 +6,7 @@ package sk.homisolutions.shotbox.librariesloader.settings;
 /*
 This class needs to be initialized first.
  */
-public class Setup {
+public class SystemSetup {
 
     public static String LIBRARY_FOLDER = null;
 

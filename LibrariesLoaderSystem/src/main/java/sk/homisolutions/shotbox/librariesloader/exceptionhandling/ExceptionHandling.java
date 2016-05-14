@@ -1,4 +1,4 @@
-package sk.homisolutions.shotbox.librariesloader.system;
+package sk.homisolutions.shotbox.librariesloader.exceptionhandling;
 
 import org.apache.log4j.Logger;
 

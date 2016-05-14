@@ -1,14 +1,8 @@
-package sk.homisolutions.shotbox.librariesloader.system;
+package sk.homisolutions.shotbox.librariesloader.classloading_system;
 
 import sk.homisolutions.shotbox.librariesloader.settings.Constants;
 import org.apache.log4j.Logger;
-import org.reflections.Reflections;
-import org.reflections.scanners.ResourcesScanner;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
-import sk.homisolutions.shotbox.librariesloader.settings.Setup;
+import sk.homisolutions.shotbox.librariesloader.settings.SystemSetup;
 
 import java.io.File;
 import java.util.*;
@@ -28,7 +22,30 @@ class FilesCrawler {
         logger.info("Initializing object ends.");
     }
 
-    public List<String> getRelevantFilesFromDir(){
+    public List<String> gettingRelevantFiles() {
+        logger.info("Method called.");
+        logger.info("Files in directory '" + SystemSetup.LIBRARY_FOLDER +"' are going to be scanned.");
+
+        getRelevantFilesFromDir();
+
+        if(this.relevantFiles == null){
+            logger.fatal("Returned list with files' paths is null. There is some big issue, wich need to be resolved. "+
+                    "For application consistency, empty array is created.");
+            relevantFiles = new ArrayList<>();
+        }
+        if(this.relevantFiles.size() == 0){
+            logger.warn("Returned list with relevant files' paths is empty. " +
+                    "There are no files, which can be loaded from directory.");
+        }
+        logger.info("Files in '" + SystemSetup.LIBRARY_FOLDER +"' are now scanned." +
+                "Relevant files number is: " +this.relevantFiles.size());
+
+        logger.info("Method ends.");
+
+        return this.relevantFiles;
+    }
+
+    private void getRelevantFilesFromDir(){
         logger.info("Method called.");
 
         logger.info("Getting files' list from folder.");
@@ -52,7 +69,6 @@ class FilesCrawler {
         logger.info("Files filtered:");
         relevantFiles.forEach(logger::info);
         logger.info("Method ends.");
-        return this.relevantFiles;
     }
 
     private void filesListsCheck() {
@@ -74,54 +90,6 @@ class FilesCrawler {
 
         logger.info("Checking files' lists finished. Data are consistent.");
         return;
-    }
-
-
-    public List<String> getPresentedInterfaces(){
-        logger.info("Method called.");
-
-
-        if(Setup.PACKAGE_WITH_APIs == null || Setup.PACKAGE_WITH_APIs.equals("")){
-            logger.error("Path to package with interfaces is null or not defined. " +
-                    "No interfaces will be loaded. Empty list will be returned.");
-            return new ArrayList<>();
-        }
-        String packageWithInterfaces = Setup.PACKAGE_WITH_APIs;
-
-        /*
-        ------------------------------------------------------------------------------------------------------------
-            This solutions is from:
-            http://stackoverflow.com/questions/520328/can-you-find-all-classes-in-a-package-using-reflection
-        */
-        List<ClassLoader> classLoadersList = new LinkedList<>();
-        classLoadersList.add(ClasspathHelper.contextClassLoader());
-        classLoadersList.add(ClasspathHelper.staticClassLoader());
-
-        Reflections reflections = new Reflections(new ConfigurationBuilder()
-                .setScanners(new SubTypesScanner(false /* don't exclude Object.class */), new ResourcesScanner())
-                .setUrls(ClasspathHelper.forClassLoader(classLoadersList.toArray(new ClassLoader[0])))
-                .filterInputsBy(new FilterBuilder().include(FilterBuilder.prefix(packageWithInterfaces))));
-
-        Set<Class<?>> classes = reflections.getSubTypesOf(Object.class);
-        /* and it looks awesome
-        --------------------------------------------------------------------------------------------------------*/
-
-        logger.debug("Loaded interfaces from: " +Setup.PACKAGE_WITH_APIs);
-        logger.debug("Number of interfaces: " +classes.size());
-        logger.debug("Loaded interfaces list: ");
-        classes.forEach(logger::debug);
-
-        List<String> interfacesNames = new ArrayList<>();
-        classes.forEach(x->{interfacesNames.add(x.getName());});
-
-
-        logger.info("Resolved interfaces from: " +Setup.PACKAGE_WITH_APIs);
-        logger.info("Number of interfaces: " +interfacesNames.size());
-        logger.info("Resolved interfaces list: ");
-        interfacesNames.forEach(logger::info);
-
-        logger.info("Method ends.");
-        return interfacesNames;
     }
 
     /*

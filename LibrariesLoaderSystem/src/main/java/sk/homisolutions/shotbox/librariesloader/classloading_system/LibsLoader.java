@@ -1,9 +1,10 @@
-package sk.homisolutions.shotbox.librariesloader.system;
+package sk.homisolutions.shotbox.librariesloader.classloading_system;
 
-import sk.homisolutions.shotbox.librariesloader.settings.Constants;
 import org.apache.log4j.Logger;
 import sk.homisolutions.shotbox.librariesloader.api.LibrariesLoader;
-import sk.homisolutions.shotbox.librariesloader.settings.Setup;
+import sk.homisolutions.shotbox.librariesloader.exceptionhandling.ExceptionHandling;
+import sk.homisolutions.shotbox.librariesloader.settings.SystemSetup;
+import sk.homisolutions.shotbox.librariesloader.setup_loading.InitApplicationSetup;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -12,64 +13,46 @@ import java.net.URLClassLoader;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.stream.Collectors;
 
 /**
  * Created by homi on 4/3/16.
  */
-//TODO: add e.getMessage to all catch
-class LibsLoader implements LibrariesLoader {
+public class LibsLoader implements LibrariesLoader {
 
     private static final Logger logger = Logger.getLogger(LibsLoader.class);
     private static final ExceptionHandling exceptionHandler = ExceptionHandling.getINSTANCE(LibsLoader.class);
 
-    private FilesCrawler filesCrawler;
+    private FilesCrawler crawler;
+    private FilesFilter filter;
+
     private List<String> relevantFiles = new ArrayList<>();
     private List<Class> allClasses = new ArrayList<>();
     private List<Class> relevantClasses = new ArrayList<>();
 
-    public LibsLoader(){
+    public LibsLoader() {
         logger.info("Object is being initialized.");
 
         logger.info("Loader is going to load LLS settings from config file.");
-        InitApplicationSetup.init();
+        InitApplicationSetup.getINSTANCE().init();
 
         logger.info("Creating FilesCrawler object.");
-        this.filesCrawler = new FilesCrawler();
+        this.crawler = new FilesCrawler();
 
-        logger.debug("Libraries from directory are going to be indexed.");
-        gettingRelevantFiles();
+        logger.info("Creating FilesFilter object.");
+        this.filter = new FilesFilter();
 
-        logger.info("Classes and jars in "+ Setup.LIBRARY_FOLDER +" are going to be loaded.");
+        logger.info("Loading classes (jars + standalone classes) process starts.");
         loadClasses();
-        logger.info("Classes and jars are loaded.");
+        logger.info("Loading classes process ends.");
         logger.info("Initializing object ends.");
     }
 
 
-    private void gettingRelevantFiles() {
-        logger.info("Method called.");
-        logger.info("Files in directory '" + Setup.LIBRARY_FOLDER +"' are going to be scanned.");
-        this.relevantFiles = this.filesCrawler.getRelevantFilesFromDir();
-        if(this.relevantFiles == null){
-            logger.fatal("Returned list with files' paths is null. There is some big issue, wich need to be resolved. "+
-                    "For application consistency, empty array is created.");
-            this.relevantFiles = new ArrayList<>();
-        }
-        if(this.relevantFiles.size() == 0){
-            logger.warn("Returned list with relevant files' paths is empty. " +
-                    "There are no files, which can be loaded from directory.");
-        }
-        logger.info("Files in '" + Setup.LIBRARY_FOLDER +"' are now scanned." +
-                "Relevant files number is: " +this.relevantFiles.size());
-        logger.info("Method ends.");
-    }
-
     @Override
-    public List<Class> reloadPresentedClasses(){
+    public List<Class> reloadPresentedClasses() {
         logger.info("Method called.");
         logger.info("Getting relevant files (Classes and Jars) from libraries directory.");
-        this.relevantFiles = this.filesCrawler.getRelevantFilesFromDir();
+
         logger.info("Relevant files (Classes and Jars) are recorded.");
 
         logger.info("Classes are going to be loaded.");
@@ -95,25 +78,27 @@ class LibsLoader implements LibrariesLoader {
         return allClasses;
     }
 
-    private List<Class> loadClasses(){
+    private List<Class> loadClasses() {
         logger.info("Method called.");
+
+        logger.debug("Libraries from directory '"+ SystemSetup.LIBRARY_FOLDER+"' are going to be indexed.");
+        relevantFiles = this.crawler.gettingRelevantFiles();
 
         List<String> jarFiles = new LinkedList<>();
         List<String> classFiles = new LinkedList<>();
 
         logger.info("Presented files are going to be filtered.");
-        filterPresentedFiles(jarFiles, classFiles);
+        filter.filterPresentedFiles(relevantFiles, jarFiles, classFiles);
         logger.info("Presented files are now filtered");
 
-        if(jarFiles.size() == 0){
+        if (jarFiles.size() == 0) {
             logger.warn("List of jars is empty. There are libraries presented in library folder to load.");
         }
-        if(classFiles.size() == 0){
+        if (classFiles.size() == 0) {
             logger.warn("List of classes is empty. There are standalone classes presented in library folder to load.");
         }
 
-        
-        
+
         logger.info("Loading presented jars will now start.");
         this.loadClassesFromJar(jarFiles);
         logger.info("All presented jars are now loaded in application.");
@@ -121,7 +106,7 @@ class LibsLoader implements LibrariesLoader {
         this.loadStandaloneClass(classFiles);
         logger.info("All standalone classes are now loaded in application.");
 
-        if(allClasses.size() == 0){
+        if (allClasses.size() == 0) {
             logger.warn("List with loaded classes is empty. Nothing was loaded. " +
                     "This empty list will be returned.");
             this.relevantClasses.addAll(this.allClasses);
@@ -129,16 +114,16 @@ class LibsLoader implements LibrariesLoader {
         }
 
         logger.info("All loaded classes:");
-        allClasses.forEach(x-> logger.info(x.getName()));
+        allClasses.forEach(x -> logger.info(x.getName()));
 
         logger.info("All loaded classes are going to be filtered.");
-        filterClasses();
+        relevantClasses = filter.filterClasses(allClasses);
         logger.info("Loaded classes are now filtered.");
 
-        if(relevantClasses.size() == 0){
+        if (relevantClasses.size() == 0) {
             logger.warn("List with loaded relevant classes is empty. There are no loaded classes, which could be " +
                     "used by application.");
-        }else {
+        } else {
             relevantClasses.forEach(x -> logger.info(x.getName()));
         }
 
@@ -147,135 +132,17 @@ class LibsLoader implements LibrariesLoader {
         return this.relevantClasses;
     }
 
-    /*
-    Until the getPresentedInterface will not be repaired, this method is useless too.
-     */
-    private void filterClasses() {
-        logger.info("Method called.");
-
-        logger.info("Getting presented interfaces (api for external modules).");
-        List<String> interfacesFullNames = this.filesCrawler.getPresentedInterfaces();
-
-        if(interfacesFullNames==null){
-            logger.error("No interfaces (api) could be loaded. List is null. " +
-                    "All classes will be marked as relevant. Filter process is quitting.");
-            this.relevantClasses.addAll(allClasses);
-            return;
-        }
-        if(interfacesFullNames.size()==0){
-            logger.error("No interfaces (api) could be loaded. List is empty. " +
-                    "All classes will be marked as relevant. Filter process is quitting.");
-            this.relevantClasses.addAll(allClasses);
-            return;
-        }
-
-        logger.info("Interfaces (api) are loaded. All loaded classes are going to be filtered. " +
-                "Relevant classes list will be created.");
-
-        logger.debug("All classes are going to be filtered by loaded interfaces. " +
-                "Relevant classes list will be created.");
-
-        /*
-        Process of filtering classes by interfaces:
-
-        For every loaded class, list of implemented interfaces is get.
-        Every interface for every class is compared with every loaded interface from library, if there will be match.
-        If yes, class implements expected interface and class is relevant. If class does not implement any of
-        loaded interface from library, class is not relevant.
-
-        So..... From All classes list is created stream and this stream is filtered. Filter decide,
-        if class is relevant or not. If yes, class is added to collection, if no, class is not important.
-        Created collection is added to relevant classes list.
-        What filter does is described above.
-         */
-
-        this.relevantClasses.addAll(allClasses.stream()
-                    .filter(c -> {
-                        logger.debug("Class " +c.getName() +" is going to be analyzed.");
-                        logger.debug("Reading interfaces of this class (If class implements any interface) : ");
-                        for(Class iface: c.getInterfaces()){
-                            logger.debug("Analyzed interface: " +iface.getName());
-                            if(interfacesFullNames.contains(iface.getName())){
-                                logger.debug("Interface match with loaded interfaces list. " +
-                                        "Class is relevant and will be added to relevant classes list.");
-                                return true;
-                            }else{
-                                logger.debug("Interface did not match with loaded interfaces list.");
-                            }
-                        }
-                        logger.debug("Analyzing class " +c.getName() +" finished.");
-                        return false;
-                    } )
-                    .collect(Collectors.toList())
-        );
-        /*
-        Filtering ends.
-         */
-
-        logger.info("Creating relevant loaded classes list is finished:");
-
-        if(this.relevantClasses.size() == 0){
-            logger.warn("Relevant classes list is empty. " +
-                    "There is no class, which can be used and empty list will be returned.");
-        }
-
-        this.relevantClasses.forEach(logger::debug);
-
-        logger.info("Method ends.");
-    }
-
-    private void filterPresentedFiles(List<String> jars, List<String> classes) {
-        logger.info("Method called.");
-
-        if(jars == null || classes == null){
-            logger.error("Some programmer did something wrong. Input arrays are null: " +
-                    "jars-" +jars +";" +
-                    "classes-" +classes + " " +
-                    "Without this lists, method is useless, so application will terminate this process.");
-            return;
-        }
-
-        if(relevantFiles == null){
-            logger.error("Files' list is null. This should not happens. " +
-                    "There is nothing to filter, so application will terminate this process.");
-            return;
-        }
-
-        logger.debug("This files' paths are going to be filtered: ");
-        relevantFiles.forEach(logger::debug);
-
-        for (String filePath: relevantFiles){
-            logger.info("Analyzing file path: " +filePath);
-            if (isJar(filePath)){
-                logger.info("File is jar.");
-                jars.add(filePath);
-            } else if(isClass(filePath)){
-                logger.info("File is class.");
-                classes.add(filePath);
-            } else {
-                logger.info("File is not class, neither jar.");
-            }
-        }
-
-        logger.debug("Jars:");
-        jars.forEach(logger::debug);
-        logger.debug("Classes:");
-        classes.forEach(logger::debug);
-
-        logger.info("Method ends.");
-    }
-
 
     private void loadStandaloneClass(List<String> classPaths) {
 
         logger.info("Method called.");
 
-        if(classPaths == null){
+        if (classPaths == null) {
             logger.error("Input list with classes' path is null. Something is wrong and needs to debug. " +
                     "There is nothing to load, so application is going to terminate this process.");
             return;
         }
-        if(classPaths.size() == 0){
+        if (classPaths.size() == 0) {
             logger.warn("Input list with classes' path is empty. There is nothing to load." +
                     "Application will end this process.");
             return;
@@ -284,12 +151,12 @@ class LibsLoader implements LibrariesLoader {
         URLClassLoader classLoader = null;
         String actualDirPath = "";
 
-        for(String filePath: classPaths) {
+        for (String filePath : classPaths) {
             logger.info("Raw class file path: " + filePath);
 
         /*
         this class path calculating is good, when i have classes without any package and without any structure
-        but when i need to load structured system, structured class system, this is very bad path calculating
+        but when i need to load structured classloading_system, structured class classloading_system, this is very bad path calculating
 
         String directoryPath = filePath.substring(0, filePath.lastIndexOf(File.separator)+1);
         String className = filePath.substring(filePath.lastIndexOf(File.separator)+1, filePath.lastIndexOf("."));
@@ -299,44 +166,44 @@ class LibsLoader implements LibrariesLoader {
         correct way to calculate class path :
          */
 
-            String directoryPath = filePath.substring(0, filePath.indexOf(Setup.LIBRARY_FOLDER) + Setup.LIBRARY_FOLDER.length());
-            String className = filePath.substring(filePath.indexOf(Setup.LIBRARY_FOLDER) + Setup.LIBRARY_FOLDER.length() + 1);
-            className = className.substring(0, className.indexOf("."));
-            className = className.replace(File.separator, ".");
+            String directoryPath = filePath.substring(0, filePath.indexOf(SystemSetup.LIBRARY_FOLDER) + SystemSetup.LIBRARY_FOLDER.length());
+            String className = filePath.substring(filePath.indexOf(SystemSetup.LIBRARY_FOLDER) + SystemSetup.LIBRARY_FOLDER.length() + 1);
+            className = className.substring(0, className.indexOf(""));
+            className = className.replace(File.separator, "");
 
             logger.info("Calcualted class path: " +
-                    directoryPath +" : " +
-                    className +" -");
+                    directoryPath + " : " +
+                    className + " -");
             try {
-                if(!actualDirPath.equals(directoryPath)) {
-                    logger.info("New dir path is calculated for ClassLoader: '" +directoryPath
-                            +"' old one: '" +actualDirPath +"'.");
+                if (!actualDirPath.equals(directoryPath)) {
+                    logger.info("New dir path is calculated for ClassLoader: '" + directoryPath
+                            + "' old one: '" + actualDirPath + "'.");
                     actualDirPath = directoryPath;
 
                     logger.info("Classloader is going to be initialized.");
                     classLoader = initClassLoader(directoryPath);
-                    if(classLoader == null){
+                    if (classLoader == null) {
                         logger.error("Classloader is null -> could not be initialized. Nothing can be loaded.");
                         continue;
-                    }else {
+                    } else {
                         logger.info("Classloader is initialized.");
                     }
                 }
 
-                if(classLoader==null){
+                if (classLoader == null) {
                     logger.error("Classloader is not initialized. Probable reason is wrong path to directory " +
                             "with class. Without classloader and correct path to class, nothing can be loaded. " +
                             "This class will be skipped.");
                     continue;
                 }
 
-                if(actualDirPath==null || actualDirPath.equals("")){
-                    logger.error("Path to directory with classes is not valid: " +actualDirPath
-                            +". Nothing will be loaded. This class is skipped.");
+                if (actualDirPath == null || actualDirPath.equals("")) {
+                    logger.error("Path to directory with classes is not valid: " + actualDirPath
+                            + ". Nothing will be loaded. This class is skipped.");
                     continue;
                 }
 
-                logger.info("Actual dir path for Classloader: " +actualDirPath);
+                logger.info("Actual dir path for Classloader: " + actualDirPath);
 
                 logger.info("Class is going to be loaded: " + className);
 
@@ -344,7 +211,7 @@ class LibsLoader implements LibrariesLoader {
                 Class c = classLoader.loadClass(className);
                 logger.info("Class is loaded: " + c.getName());
 
-                if(c == null){
+                if (c == null) {
                     logger.error("Class could not be loaded. Probable reason is wrong class name. " +
                             "Class is skipped.");
                     continue;
@@ -369,38 +236,38 @@ class LibsLoader implements LibrariesLoader {
     private URLClassLoader initClassLoader(String path) throws MalformedURLException {
         logger.info("Method called.");
 
-        if(path == null){
+        if (path == null) {
             logger.error("Input path is null. No Classloader will be initialized. Quitting this action." +
                     "Null will be returned.");
             return null;
         }
-        if (path.equals("")){
+        if (path.equals("")) {
             logger.error("Input path is empty. No Classloader will be initialized. Quitting this action." +
                     "Null will be returned.");
             return null;
         }
 
-        logger.info("Path for classloader: " +path);
+        logger.info("Path for classloader: " + path);
 
         URL[] urls = {null};
 
-        if(path.endsWith(".jar")) {
+        if (path.endsWith(".jar")) {
             urls[0] = new URL("jar:file:" + path + "!/");
             logger.info("Will be created class loader for jar file.");
-        }else{
+        } else {
             File file = new File(path);
             urls[0] = file.toURI().toURL();
             logger.info("Will be created class loader for directory.");
         }
 
-        if(urls[0] == null){
+        if (urls[0] == null) {
             logger.error("Path is not valid for creating classloader. Null will be returned.");
             return null;
         }
 
         logger.info("Classloader is going to be created.");
         URLClassLoader loader = URLClassLoader.newInstance(urls);
-        if(loader == null){
+        if (loader == null) {
             logger.error("Classloader is null. Address was probably wrong. Method is returning null");
             return null;
         }
@@ -414,25 +281,25 @@ class LibsLoader implements LibrariesLoader {
     private void loadClassesFromJar(List<String> jarPaths) {
         logger.info("Method called");
 
-        if(jarPaths == null){
+        if (jarPaths == null) {
             logger.error("Input list with jars' path is null. Something is wrong and needs to debug. " +
                     "There is nothing to load, so application is going to terminate this process.");
             return;
         }
-        if(jarPaths.size() == 0){
+        if (jarPaths.size() == 0) {
             logger.warn("Input list with jars' path is empty. There is nothing to load." +
                     "Application will end this process.");
             return;
         }
 
-        for(String filePath: jarPaths) {
+        for (String filePath : jarPaths) {
             logger.info("Loaded jar: " + filePath);
             try {
 
                 logger.info("Jar file is going to be loaded.");
                 //load jar file
                 JarFile jar = new JarFile(filePath);
-                if(jar == null){
+                if (jar == null) {
                     logger.error("Jar could not be loaded. Path to jar is probably wrong. " +
                             "This jar is skipping.");
                     continue;
@@ -445,7 +312,7 @@ class LibsLoader implements LibrariesLoader {
                 logger.info("Getting classloader for jar file.");
                 //create classloader for loaded jar
                 URLClassLoader cl = initClassLoader(filePath);
-                if(cl==null){
+                if (cl == null) {
                     logger.error("Returned classloader is null. CL could not be created." +
                             "Path to jar is probably wrong. This jar is skipping.");
                     continue;
@@ -475,7 +342,7 @@ class LibsLoader implements LibrariesLoader {
                     //loading class
                     logger.info("Loading class");
                     Class c = cl.loadClass(className);
-                    logger.info("Class is loaded: " +c.getName());
+                    logger.info("Class is loaded: " + c.getName());
 
                     //adding class to class list for all loaded classes
                     logger.info("Class will be added to list with all classes.");
@@ -494,38 +361,5 @@ class LibsLoader implements LibrariesLoader {
 
         logger.info("Method ends.");
     }
-
-    private boolean isClass(String filePath) {
-        logger.info("Method called.");
-        if(filePath == null || filePath.equals("")){
-            logger.error("Input filepath is not valid: " +filePath);
-            return false;
-        }
-        logger.info("Analyzed filename: " + filePath);
-        if(filePath.endsWith(".class")) {
-            logger.info("Result: true.");
-            logger.info("Methods ends.");
-            return true;
-        }
-        logger.info("Result: false.");
-        logger.info("Methods ends.");
-        return false;
-    }
-
-    private boolean isJar(String filePath) {
-        logger.info("Method called.");
-        if(filePath == null || filePath.equals("")){
-            logger.error("Input filepath is not valid: " +filePath);
-            return false;
-        }
-        logger.info("Analyzed filename: " + filePath);
-        if(filePath.endsWith(".jar")) {
-            logger.info("Result: true.");
-            logger.info("Methods ends.");
-            return true;
-        }
-        logger.info("Result: false.");
-        logger.info("Methods ends.");
-        return false;
-    }
 }
+

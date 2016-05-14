@@ -168,8 +168,8 @@ public class LibsLoader implements LibrariesLoader {
 
             String directoryPath = filePath.substring(0, filePath.indexOf(SystemSetup.LIBRARY_FOLDER) + SystemSetup.LIBRARY_FOLDER.length());
             String className = filePath.substring(filePath.indexOf(SystemSetup.LIBRARY_FOLDER) + SystemSetup.LIBRARY_FOLDER.length() + 1);
-            className = className.substring(0, className.indexOf(""));
-            className = className.replace(File.separator, "");
+            className = className.substring(0, className.indexOf("."));
+            className = className.replace(File.separator, ".");
 
             logger.info("Calcualted class path: " +
                     directoryPath + " : " +

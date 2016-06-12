@@ -15,12 +15,14 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
+ * This class serve as tool for loading available .class files to application.
+ *
  * Created by homi on 4/3/16.
  */
 public class LibsLoader implements LibrariesLoader {
 
     private static final Logger logger = Logger.getLogger(LibsLoader.class);
-    private static final ExceptionHandling exceptionHandler = ExceptionHandling.getINSTANCE(LibsLoader.class);
+    private static final ExceptionHandling exceptionHandler = ExceptionHandling.createINSTANCE(LibsLoader.class);
 
     private FilesCrawler crawler;
     private FilesFilter filter;
@@ -29,11 +31,18 @@ public class LibsLoader implements LibrariesLoader {
     private List<Class> allClasses = new ArrayList<>();
     private List<Class> relevantClasses = new ArrayList<>();
 
+    /**
+     * This is constructor. While creating of LibsLoader object, it also
+     * initialize setup for whole LibrariesLoaderSystem,
+     * create FilesCrawler object,
+     * create FilesFilter object
+     * and perform loading libraries process - loads all libraries presented in libraries folder.
+     */
     public LibsLoader() {
         logger.info("Object is being initialized.");
 
         logger.info("Loader is going to load LLS settings from config file.");
-        InitApplicationSetup.getINSTANCE().init();
+        InitApplicationSetup.getInstance().init();
 
         logger.info("Creating FilesCrawler object.");
         this.crawler = new FilesCrawler();
@@ -48,38 +57,59 @@ public class LibsLoader implements LibrariesLoader {
     }
 
 
+    /**
+     * This method reloads libraries presented in libraries folder. For more info, see:
+     * @see LibrariesLoader#reloadPresentedClasses()
+     *
+     * @return filtered list with reloaded classes (standalone and packaged in jars) presented in libraries folder
+     */
     @Override
     public List<Class> reloadPresentedClasses() {
-        logger.info("Method called.");
-        logger.info("Getting relevant files (Classes and Jars) from libraries directory.");
+        logger.info("***LLS*** Method called.");
+        logger.info("***LLS*** Getting relevant files (Classes and Jars) from libraries directory.");
 
-        logger.info("Relevant files (Classes and Jars) are recorded.");
+        logger.info("***LLS*** Relevant files (Classes and Jars) are recorded.");
 
-        logger.info("Classes are going to be loaded.");
+        logger.info("***LLS*** Classes are going to be loaded.");
         List<Class> classes = loadClasses();
-        logger.info("Classes are loaded: ");
+        logger.info("***LLS*** Classes are loaded: ");
         classes.forEach(logger::info);
 
-        logger.info("Method ends.");
+        logger.info("***LLS*** Method ends.");
         return classes;
     }
 
+    /**
+     * This method returns list with filtered loaded classes (standalone and packaged in jars) which was presented in
+     * libraries folder while loading process was performed. For more info see:
+     * @see LibrariesLoader#getLoadedClasses()
+     *
+     * @return filtered list with loaded classes (standalone and packaged in jars) presented in libraries folder
+     */
     @Override
     public List<Class> getLoadedClasses() {
-        logger.info("Getting relevant classes:");
+        logger.info("***LLS*** Getting relevant classes:");
         relevantClasses.forEach(logger::info);
         return relevantClasses;
     }
 
+    /**
+     * This method returns list with all loaded classes  (standalone and packaged in jars) which was presented in
+     * libraries folder while loading process was performed. For more info see:
+     * @see LibrariesLoader#getAllLoadedClasses()
+     *
+     * @return list with all loaded classes (standalone and packaged in jars) presented in libraries folder
+     */
     @Override
     public List<Class> getAllLoadedClasses() {
-        logger.info("Getting all classes:");
+        logger.info("***LLS*** Getting all classes:");
         allClasses.forEach(logger::info);
         return allClasses;
     }
 
     private List<Class> loadClasses() {
         logger.info("Method called.");
+        logger.info("********* LibrariesLoaderSystem Analyse starts *********");
 
         logger.debug("Libraries from directory '"+ SystemSetup.LIBRARY_FOLDER+"' are going to be indexed.");
         relevantFiles = this.crawler.gettingRelevantFiles();
@@ -127,6 +157,7 @@ public class LibsLoader implements LibrariesLoader {
             relevantClasses.forEach(x -> logger.info(x.getName()));
         }
 
+        logger.info("********* LibrariesLoaderSystem Analyse ends *********");
         logger.info("Method ends.");
 
         return this.relevantClasses;

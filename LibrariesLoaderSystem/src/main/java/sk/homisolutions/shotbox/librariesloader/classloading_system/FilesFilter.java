@@ -16,17 +16,30 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Created by homi on 5/14/16.
+ * This class serve as tool for filtering loaded files. It can filer classes and jars from all files pool and also it
+ * filter whole classes, which are/are not implementing ShotBox external api
+ *
+ * Created by Homi on 5/14/16.
  */
 class FilesFilter {
 
     private static final Logger logger = Logger.getLogger(FilesFilter.class);
 
+    /**
+     * This is constructor. For now, it just create FilesFilter object and write this operation to logs.
+     */
     public FilesFilter(){
         logger.info("Creating object FilesFilter");
         logger.info("Object FilesFilter is created");
     }
 
+    /**
+     * This method provide files filtering. It reads files paths and decide, if this file is class file or jar file.
+     *
+     * @param allFiles filled list with files paths
+     * @param jars empty list, which will be fulfilled by method. It will contain paths to jar files
+     * @param classes empty list, which will be fulfilled by method. It will contain paths to class files
+     */
     public void filterPresentedFiles(List<String> allFiles, List<String> jars, List<String> classes) {
         logger.info("Method called.");
 
@@ -69,8 +82,14 @@ class FilesFilter {
     }
 
 
-    /*
-    Until the getPresentedInterface will not be repaired, this method is useless too.
+    /**
+     * This method provide class filtering. It reads class objects and its' interfaces. If class is implementing some
+     * of ShotBox external api interfaces, this class pass the filter. All classes, which are implementing ShotBox
+     * external api from input lists will be returned.
+     *
+     * @param allClasses filled list with loaded classes from library folder
+     * @return filtered list with loaded classes. Every returned class is implementing at least one of ShotBox external
+     * api interface
      */
     public List<Class> filterClasses(List<Class> allClasses) {
         logger.info("Method called.");

@@ -9,7 +9,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Created by homi on 4/14/16.
+ * This class serve as tool for rearing filesystem and working with files.
+ *
+ * Created by Homi on 4/14/16.
  */
 class FilesCrawler {
     private static final Logger logger = Logger.getLogger(FilesCrawler.class);
@@ -17,11 +19,21 @@ class FilesCrawler {
     private List<String> allFilesInDir = null;
     private List<String> relevantFiles = null;
 
-    public FilesCrawler(){
+    /**
+     * This is constructor. For now, it just create FilesCrawler object and write this operation to logs.
+     */
+    public FilesCrawler() {
         logger.info("Object is being initialized.");
         logger.info("Initializing object ends.");
     }
 
+
+    /**
+     * This method provides scanning folder and its sub-folders, saving path to all files and filtering this paths.
+     * Final list contains paths to relevant files presented in libraries folder, which can be jars (library) or classes.
+     *
+     * @return list with paths to relevant files - classes and jars
+     */
     public List<String> gettingRelevantFiles() {
         logger.info("Method called.");
         logger.info("Files in directory '" + SystemSetup.LIBRARY_FOLDER +"' are going to be scanned.");

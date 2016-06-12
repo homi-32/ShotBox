@@ -22,24 +22,32 @@ class ConfigChecker {
 
     private static final Logger logger = Logger.getLogger(ConfigChecker.class);
 
-    //TODO: write some powerfull logs
+    /**
+     * Method for checking SystemSetup after loading settings from config file
+     */
     public void checkLoadedSetup() {
-        //checking folder with libraries:
+        logger.info("Method starts.");
+
+        logger.info("Checking path to folder with external libraries.");
+        //checking folder with libraries setting:
         if(SystemSetup.LIBRARY_FOLDER == null || SystemSetup.LIBRARY_FOLDER.equals("")){
             SystemSetup.LIBRARY_FOLDER = Constants.PATH_TO_LIBRARIES_DIR;
 
             logger.warn("Path to folder with libraries was not defined." +
                     "Default one will be used: " + SystemSetup.LIBRARY_FOLDER);
 
+            logger.info("Checking default path to folder with libraries.");
             if(checkIfDirectoryExists()){
                 logger.info("Directory exists.");
             }else{
-                logger.fatal("No directory available");
-                //TODO: should I exith applicationi right now ??
+                logger.error("No directory available. New one will be created.");
+                createDefaulthDirectoryWithLibraries();
             }
 
         }else {
+            logger.info("Path is defined.");
 
+            logger.info("Checking path to folder with libraries.");
             if(checkIfDirectoryExists()){
                 logger.info("Directory exists.");
             }else{
@@ -50,34 +58,63 @@ class ConfigChecker {
                 if(checkIfDirectoryExists()){
                     logger.info("Directory exists.");
                 }else{
-                    logger.fatal("No directory available");
-                    //TODO: should I exith applicationi right now ??
+                    logger.error("No directory available. New one will be created.");
+                    createDefaulthDirectoryWithLibraries();
                 }
 
             }
 
         }
 
+        logger.info("Checking package name definition.");
         //checking package name with interfaces:
         if(SystemSetup.PACKAGE_WITH_APIs == null){
+            logger.warn("Package name is not defined.");
             SystemSetup.PACKAGE_WITH_APIs = "";
+            logger.warn("Default package setting is set. No filter will be used.");
         }else if(!SystemSetup.PACKAGE_WITH_APIs.equals("")){
-            //TODO: check, if this package exist for sure
             /*
             if package exists, good (it is god to check, if package contains interfaces)
             if package does not exist, empty string should be set ""
              */
 
+            logger.info("Package name is defined.");
+            logger.info("Checking if package does exists.");
             if(checkIfDefinedPackageExists()){
                 logger.info("Defined package exists and contains classes: " + SystemSetup.PACKAGE_WITH_APIs);
             }else{
                 logger.error("Defined package does not exists, or contain no classes: " + SystemSetup.PACKAGE_WITH_APIs);
+                logger.warn("Defined package does not exists, default one will be set. No filter will be used.");
+                SystemSetup.PACKAGE_WITH_APIs = "";
             }
 
+        } else {
+            logger.warn("Default package setting is set. No filter will be used.");
         }
+
+        logger.info("Method ends.");
+    }
+
+    private void createDefaulthDirectoryWithLibraries() {
+        logger.info("Method starts.");
+
+        File f = new File(SystemSetup.LIBRARY_FOLDER);
+
+        logger.info("Creating default directory for storing external libraries.");
+        if(f.mkdir()){
+            logger.error("Default directory for storing libraries was created, but it is empty. " +
+                    "No libraries will be loaded.");
+        } else {
+            logger.fatal("Default directory for storing libraries could not be created and no custom is defined. " +
+                    "Application exits now.");
+            System.exit(0);
+        }
+
+        logger.info("Method ends.");
     }
 
     private boolean checkIfDefinedPackageExists() {
+        logger.info("Method starts.");
         List<ClassLoader> classLoadersList = new LinkedList<>();
         classLoadersList.add(ClasspathHelper.contextClassLoader());
         classLoadersList.add(ClasspathHelper.staticClassLoader());
@@ -89,15 +126,21 @@ class ConfigChecker {
 
         Set<Class<?>> classes = reflections.getSubTypesOf(Object.class);
 
+        logger.info("Method ends.");
+
         if(classes.size() == 0){
+            logger.info("Returning false.");
             return false;
         }else{
+            logger.info("Returning true.");
             return true;
         }
     }
 
 
     private boolean checkIfDirectoryExists() {
+        logger.info("Method starts.");
+
         File libFolder = new File(SystemSetup.LIBRARY_FOLDER);
 
         if(!libFolder.exists() || !libFolder.isDirectory()) {
@@ -107,7 +150,7 @@ class ConfigChecker {
                 logger.info("Directory was created: " + SystemSetup.LIBRARY_FOLDER);
             }else{
                 logger.fatal("Directory could not be created.");
-                //TODO: should I exith applicationi right now ??
+                logger.info("Returning false. Method ends.");
                 return false;
             }
         }
@@ -121,8 +164,11 @@ class ConfigChecker {
             if it does exist, it is good (will be better, if i could check, if this contain some classes/jars,
             but who cares right now)
             If it does not exist, it is good to create one, but empty
+
+            This situation should be handled out of this method
              */
 
+        logger.info("Returning true. Method ends.");
         return true;
     }
 }

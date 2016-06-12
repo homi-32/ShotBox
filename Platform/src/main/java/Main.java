@@ -1,3 +1,5 @@
+import sk.homisolutions.shotbox.api.external.camera.Camera;
+import sk.homisolutions.shotbox.api.external.trigger.Trigger;
 import sk.homisolutions.shotbox.librariesloader.classloading_system.NativeLibsLoaderFactory;
 import org.apache.log4j.Logger;
 import sk.homisolutions.shotbox.librariesloader.api.LibrariesLoader;
@@ -9,7 +11,6 @@ import java.util.List;
  */
 public class Main {
     private static final Logger logger = Logger.getLogger(Main.class);
-
 
     public static void main(String[] args){
         logger.info("Application start");
@@ -24,6 +25,31 @@ public class Main {
 
         logger.info("Loaded classes:");
         loadedClasses.forEach(logger::info);
+
+
+        Camera camera = null;
+        Trigger trigger = null;
+
+        for(Class c: loadedClasses){
+            try {
+                Object o = c.newInstance();
+
+                if(o instanceof Camera){
+                    camera = (Camera) o;
+                }
+                if (o instanceof Trigger){
+                    trigger = (Trigger) o;
+                }
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        camera.takeShot();
+        trigger.run();
+
 
         logger.info("Application ends");
     }

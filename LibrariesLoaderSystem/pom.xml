@@ -40,7 +40,6 @@
             <version>0.1.0-Developing</version>
         </dependency>
 
-        <!-- TODO: Check this for licence -->
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>

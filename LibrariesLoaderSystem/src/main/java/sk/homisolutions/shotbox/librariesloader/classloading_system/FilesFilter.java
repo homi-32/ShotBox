@@ -173,7 +173,7 @@ class FilesFilter {
 
 
         if(SystemSetup.PACKAGE_WITH_APIs == null || SystemSetup.PACKAGE_WITH_APIs.equals("")){
-            logger.error("Path to package with interfaces is null or not defined. " +
+            logger.warn("Path to package with interfaces is null or not defined. " +
                     "No interfaces will be loaded. Empty list will be returned.");
             return new ArrayList<>();
         }

@@ -113,10 +113,10 @@ class ConfigFileManagement {
                 if(out!=null){
                     try {
                         logger.info("Opened stream found.");
-                        logger.error("OutputFileStream had been opened, before exception was threw. " +
+                        logger.info("OutputFileStream had been opened, before exception was threw. " +
                                 "Trying to close this stream.");
                         out.close();
-                        logger.error("Stream has been closed successfully.");
+                        logger.info("Stream has been closed successfully.");
                     } catch (IOException e1) {
                         logger.fatal("Stream could not be closed. Another IOException has been thrown. " +
                                 "So, it looks like stream stays opened. Bloody stream.");

@@ -60,10 +60,10 @@ class ConfigFileLoader {
             if(in != null){
                 try {
                     logger.info("Opened stream found.");
-                    logger.error("InputFileStream had been opened, before exception was threw. " +
+                    logger.info("InputFileStream had been opened, before exception was threw. " +
                             "Trying to close this stream.");
                     in.close();
-                    logger.error("Stream has been closed successfully.");
+                    logger.info("Stream has been closed successfully.");
                 } catch (IOException e) {
                     logger.fatal("Stream could not be closed. Another IOException has been thrown. " +
                             "So, it looks like stream stays opened. Bloody stream.");

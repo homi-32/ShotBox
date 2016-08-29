@@ -11,7 +11,7 @@
 
     <modules>
         <!-- This is the main module -->
-        <module>Platform</module>
+        <module>ShotBoxPlatform</module>
 
         <!-- There are support modules: -->
 
@@ -19,13 +19,24 @@
         <module>LibrariesLoaderSystem</module>
 
         <!-- Specifications for Platform structure and LibrariesLoaderSystem  -->
-        <module>ShotBoxInternalInterfaces</module>
+
 
         <!-- Specification for External modules loadable by LibrariesLoaderSystem -->
-        <module>ShotBoxExternalInterfaces</module>
+        <module>ShotBoxToolsSet</module>
 
         <!-- Just module for testing LibrariesLoaderSystem. Generates classes and stuff. -->
         <module>TestClassesForLLSystem</module>
+
+        <!-- There are ShotBox Native External Modules - SNEM -->
+
+        <!-- Implementation of Simple Camera module for GoPro camera (ProxyModule) -->
+        <module>SNEM_SimpleCamera_GoPro</module>
+
+        <!-- Implementation of Shooting trigger module for Keyboard -->
+        <module>SNEM_ShootTrigger_Keyboard</module>
+
+        <!-- Implementation of Shooting trigger module for Raspbery Pi GPIO Button (Button is connected to pin: unknown right now) -->
+        <module>SNEM_ShootTrigger_RpiGpioButton4</module>
     </modules>
 
     <properties>

@@ -3,6 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <dependencies>
+        <dependency>
+            <groupId>sk.homisolutions.shotbox</groupId>
+            <artifactId>ShotBoxToolsSet</artifactId>
+            <version>0.1.0-Developing</version>
+        </dependency>
+    </dependencies>
 
     <parent>
         <groupId>sk.homisolutions.shotbox</groupId>
@@ -10,15 +17,8 @@
         <version>0.1.0-Developing</version>
     </parent>
 
-    <artifactId>TestClassesForLLSystem</artifactId>
+
+    <artifactId>SNEM_ShootTrigger_Keyboard</artifactId>
     <packaging>jar</packaging>
 
-    <dependencies>
-
-    <dependency>
-        <groupId>sk.homisolutions.shotbox</groupId>
-        <artifactId>ShotBoxToolsSet</artifactId>
-        <version>0.1.0-Developing</version>
-    </dependency>
-    </dependencies>
 </project>

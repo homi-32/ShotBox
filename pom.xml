@@ -30,13 +30,17 @@
         <!-- There are ShotBox Native External Modules - SNEM -->
 
         <!-- Implementation of Simple Camera module for GoPro camera (ProxyModule) -->
-        <module>SNEM_SimpleCamera_GoPro</module>
+        <module>SNEM_SimpleCamera_GoProHeroFourBlack</module>
 
         <!-- Implementation of Shooting trigger module for Keyboard -->
         <module>SNEM_ShootTrigger_Keyboard</module>
 
         <!-- Implementation of Shooting trigger module for Raspbery Pi GPIO Button (Button is connected to pin: unknown right now) -->
-        <module>SNEM_ShootTrigger_RpiGpioButton4</module>
+        <module>SNEM_ShootTrigger_RpiGpioButton</module>
+
+        <!-- Implementation of Image processor module for storing photos on Filesystem.
+        This module is temporary and will removed lately with implementation-->
+        <module>SNEM_ImageProcessor_StoringPhotoOnFilesystem</module>
     </modules>
 
     <properties>

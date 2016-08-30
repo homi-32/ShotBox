@@ -1,16 +1,18 @@
 package sk.homisolutions.shotbox.tools.models;
 
 import javax.activation.MimeType;
+import java.io.File;
+import java.io.Serializable;
 
 /**
  * Created by homi on 8/20/16.
  */
-public class TakenPicture {
+public class TakenPicture{
 
     private String filename;
     private MimeTypes type;
     //what is better, Object, or byte array byte[] ?????
-    private Object picture;
+    private byte[] picture;
 
     public TakenPicture(){
         this.filename = "";
@@ -34,11 +36,11 @@ public class TakenPicture {
         this.type = type;
     }
 
-    public Object getPicture() {
+    public byte[] getPicture() {
         return picture;
     }
 
-    public void setPicture(Object picture) {
+    public void setPicture(byte[] picture) {
         this.picture = picture;
     }
 }

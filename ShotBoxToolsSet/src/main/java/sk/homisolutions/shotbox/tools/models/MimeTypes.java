@@ -1,5 +1,7 @@
 package sk.homisolutions.shotbox.tools.models;
 
+import java.io.Serializable;
+
 /**
  * Created by homi on 8/20/16.
  */

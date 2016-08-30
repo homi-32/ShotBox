@@ -1,8 +1,10 @@
 package sk.homisolutions.shotbox.platform;
 
 import sk.homisolutions.shotbox.platform.providers.CameraProvider;
+import sk.homisolutions.shotbox.platform.providers.ImageProcessorProvider;
 import sk.homisolutions.shotbox.platform.providers.TriggerProvider;
 import sk.homisolutions.shotbox.tools.api.internal.camera.CameraPlatformProvider;
+import sk.homisolutions.shotbox.tools.api.internal.imageprocessor.ImageProcessorPlatformProvider;
 import sk.homisolutions.shotbox.tools.api.internal.trigger.TriggerPlatformProvider;
 
 /**
@@ -16,6 +18,7 @@ public class ProvidersManager {
 
     private CameraPlatformProvider cameraProvider;
     private TriggerPlatformProvider triggerProvider;
+    private ImageProcessorPlatformProvider imageProcessorProvider;
 
     private ProvidersManager(){
         //singleton
@@ -28,6 +31,7 @@ public class ProvidersManager {
     public void initializeProviders() {
         cameraProvider = new CameraProvider();
         triggerProvider = new TriggerProvider();
+        imageProcessorProvider = new ImageProcessorProvider();
 
         isInitialized = true;
     }
@@ -38,6 +42,10 @@ public class ProvidersManager {
 
     public TriggerPlatformProvider getTriggerProvider() {
         return triggerProvider;
+    }
+
+    public ImageProcessorPlatformProvider getImageProcessorProvider() {
+        return imageProcessorProvider;
     }
 
     public boolean isInitialized() {

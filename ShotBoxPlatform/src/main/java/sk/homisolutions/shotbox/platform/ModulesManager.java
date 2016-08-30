@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import sk.homisolutions.shotbox.librariesloader.api.LibrariesLoader;
 import sk.homisolutions.shotbox.librariesloader.classloading_system.NativeLibsLoaderFactory;
 import sk.homisolutions.shotbox.tools.api.external.camera.SimpleCamera;
+import sk.homisolutions.shotbox.tools.api.external.imageprocessing.ImageProcessor;
 import sk.homisolutions.shotbox.tools.api.external.trigger.ShootTrigger;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class ModulesManager {
 
     private List<SimpleCamera> simpleCameraModules;
     private List<ShootTrigger> shootTriggerModules;
+    private List<ImageProcessor> imageProcessorModules;
 
     //TODO: do i need this???
     private List<Thread> threads;
@@ -32,6 +34,7 @@ public class ModulesManager {
 
         simpleCameraModules = new ArrayList<>();
         shootTriggerModules = new ArrayList<>();
+        imageProcessorModules = new ArrayList<>();
         threads = new LinkedList<>();
     }
 
@@ -45,6 +48,10 @@ public class ModulesManager {
 
     public List<ShootTrigger> getShootTriggerModules() {
         return shootTriggerModules;
+    }
+
+    public List<ImageProcessor> getImageProcessorModules() {
+        return imageProcessorModules;
     }
 
     public void initializeExternalModules(){
@@ -66,12 +73,23 @@ public class ModulesManager {
                 if (o instanceof SimpleCamera){
                     initSimpleCamera((SimpleCamera) o);
                 }
+                if (o instanceof ImageProcessor){
+                    initImageProcessor((ImageProcessor) o);
+                }
             } catch (InstantiationException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void initImageProcessor(ImageProcessor imageProcessor) {
+        imageProcessor.setProvider(providers.getImageProcessorProvider());
+        this.imageProcessorModules.add(imageProcessor);
+        Thread thread = new Thread(imageProcessor);
+        threads.add(thread);
+        thread.start();
     }
 
     private void initSimpleCamera(SimpleCamera camera){

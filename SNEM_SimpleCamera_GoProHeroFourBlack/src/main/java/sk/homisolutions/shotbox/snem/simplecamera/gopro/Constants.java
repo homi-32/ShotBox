@@ -22,9 +22,10 @@ public class Constants {
     public static final String GET_PASSWORD="http://10.5.5.9/camera/sd";
 
     //for all cameras
-    public static final String GET_MEDIA_LIST="http://10.5.5.9:8080/gp/gpMediaList";
+    public static final String GET_MEDIA_LIST="http://10.5.5.9:8080/gp/gpMediaList/";
 
-    public static final String MAIN_DIRECTORY_URL="http://10.5.5.9:8080/videos";
+    public static final String GOPRO_FOLDER_WITH_PHOTOS = "100GOPRO";
+    public static String MAIN_DIRECTORY_URL="http://10.5.5.9:8080/videos/DCIM/"+GOPRO_FOLDER_WITH_PHOTOS+"/";
 
     /*
     more info here: https://github.com/KonradIT/goprowifihack/blob/master/HERO4/CameraStatus.md
@@ -35,7 +36,7 @@ public class Constants {
     // https://github.com/KonradIT/goprowifihack/blob/master/HERO4/WifiCommands.md
     // most values: 1-yes, 0-no
     // also available Multishot, instead of photo
-    public static final String TURN_ON_PHOTO="http://10.5.5.9/gp/gpControl/setting/21/1";
+    public static final String TURN_ON_PHOTO="http://10.5.5.9/gp/gpControl/command/mode?p=1";
     public static final String SET_NATIVE_WHITE_BALANCE_FOR_PHOTO="http://10.5.5.9/gp/gpControl/setting/22/4";
     //GOPRO color for photo https://i.ytimg.com/vi/q4CQZrBfk3w/maxresdefault.jpg
     public static final String SET_COLOR_TO_GOPRO_FOR_PHOTO="http://10.5.5.9/gp/gpControl/setting/23/0";
@@ -51,6 +52,7 @@ public class Constants {
     public static final String GYRO_BASED_ORIENTATION="http://10.5.5.9/gp/gpControl/setting/52/0";
     public static final String QUICK_CAPTURE_ON="http://10.5.5.9/gp/gpControl/setting/54/1";
     public static final String LED_BLINK_4TIMES="http://10.5.5.9/gp/gpControl/setting/55/2";
+
 
     //delete file: http://10.5.5.9/gp/gpControl/command/storage/delete?p=file (eg. /100GOPRO/G0010124.JPG)
     //Delete Last media taken: http://10.5.5.9/gp/gpControl/command/storage/delete/last

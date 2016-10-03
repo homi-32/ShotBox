@@ -9,8 +9,9 @@ import java.io.Serializable;
  * Created by homi on 8/30/16.
  */
 /*
-There is need for split ImageProcessor to ImageStoring, ImageSharing
-and ImageEditor (for example: applying filters to image),
+There is need for split ImageProcessor to ImageStoring, ImageSharing,
+ ImageEditor (for example: applying filters to image) and ScreenShower
+ (send taken screen to GUI, to show it),
 but it will be applied lately.
  */
 //Temporary module api

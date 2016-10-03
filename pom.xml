@@ -36,6 +36,8 @@
         <module>SNEM_ShootTrigger_Keyboard</module>
 
         <!-- Implementation of Shooting trigger module for Raspbery Pi GPIO Button (Button is connected to pin: unknown right now) -->
+        <!-- This module is little bit tricky, but it is not extraordinary situation. See comments in POM of this module.  -->
+        <!-- You should not use this module, if you are not running ShotBox on Raspberry Pi-->
         <module>SNEM_ShootTrigger_RpiGpioButton</module>
 
         <!-- Implementation of Image processor module for storing photos on Filesystem.

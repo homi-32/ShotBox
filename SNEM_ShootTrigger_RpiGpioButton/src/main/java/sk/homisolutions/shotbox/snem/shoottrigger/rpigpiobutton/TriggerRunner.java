@@ -3,7 +3,7 @@ package sk.homisolutions.shotbox.snem.shoottrigger.rpigpiobutton;
 import com.pi4j.io.gpio.*;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
-import com.sun.istack.internal.logging.Logger;
+import org.apache.log4j.Logger;
 import sk.homisolutions.shotbox.tools.api.external.trigger.ShootTrigger;
 import sk.homisolutions.shotbox.tools.api.internal.trigger.TriggerPlatformProvider;
 
@@ -11,7 +11,11 @@ import sk.homisolutions.shotbox.tools.api.internal.trigger.TriggerPlatformProvid
  * Created by homi on 8/29/16.
  */
 //TODO: draw circuit scheme
+    /*
+    See comments in POM, this module is little bit tricky.
+     */
 public class TriggerRunner implements ShootTrigger {
+
 
     private static final Logger logger = Logger.getLogger(TriggerRunner.class);
     private TriggerPlatformProvider provider;

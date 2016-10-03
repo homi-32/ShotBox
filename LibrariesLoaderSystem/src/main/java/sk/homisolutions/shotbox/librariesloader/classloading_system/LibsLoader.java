@@ -7,6 +7,8 @@ import sk.homisolutions.shotbox.librariesloader.settings.SystemSetup;
 import sk.homisolutions.shotbox.librariesloader.setup_loading.InitApplicationSetup;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -19,6 +21,8 @@ import java.util.jar.JarFile;
  *
  * Created by homi on 4/3/16.
  */
+//TODO: add check, if the class is already loaded, or not, but now i am not sure, if it is possible
+//TODO: review class, edit code logic, secure new parts, log new parts
 public class LibsLoader implements LibrariesLoader {
 
     private static final Logger logger = Logger.getLogger(LibsLoader.class);
@@ -31,6 +35,16 @@ public class LibsLoader implements LibrariesLoader {
     private List<Class> allClasses = new ArrayList<>();
     private List<Class> relevantClasses = new ArrayList<>();
 
+
+    /*
+    This properties are used only in 1 method, but this method is called zillion times.
+    This is good reason to store them here and do not resolve them by every method call.
+    (performance reason)
+    */
+    private Method findLoadedClass;
+    private ClassLoader systemClassLoader;
+
+
     /**
      * This is constructor. While creating of LibsLoader object, it also
      * initialize setup for whole LibrariesLoaderSystem,
@@ -40,6 +54,12 @@ public class LibsLoader implements LibrariesLoader {
      */
     public LibsLoader() {
         logger.info("Object is being initialized.");
+
+        logger.info("Resolving method 'findLoadedClass'");
+        resolveMethodFindLoadedClass();
+
+        logger.info("Requesting system class loader");
+        systemClassLoader = ClassLoader.getSystemClassLoader();
 
         logger.info("Loader is going to load LLS settings from config file.");
         InitApplicationSetup.getInstance().init();
@@ -53,7 +73,18 @@ public class LibsLoader implements LibrariesLoader {
         logger.info("Loading classes (jars + standalone classes) process starts.");
         loadClasses();
         logger.info("Loading classes process ends.");
+
         logger.info("Initializing object ends.");
+    }
+
+    private void resolveMethodFindLoadedClass() {
+        try {
+            findLoadedClass = ClassLoader.class.getDeclaredMethod("findLoadedClass", new Class[] { String.class });
+            findLoadedClass.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            logger.error("Error occurs while requesting method 'findLoadedClass'");
+            exceptionHandler.handle(e);
+        }
     }
 
 
@@ -239,11 +270,21 @@ public class LibsLoader implements LibrariesLoader {
                 logger.info("Class is going to be loaded: " + className);
 
 
-                Class c = classLoader.loadClass(className);
-                logger.info("Class is loaded: " + c.getName());
+                Class c = null;
+                try {
+                    c = loadClass(classLoader, className);
+                    if(c != null) {
+                        logger.info("Class is loaded: " + c.getName());
+                    }
+                }catch (Exception exc){
+                    logger.error("Exception occurs while loading class: '" +className +"'.");
+                    exceptionHandler.handle(exc);
+                }
+
 
                 if (c == null) {
-                    logger.error("Class could not be loaded. Probable reason is wrong class name. " +
+                    logger.error("Class could not be loaded. Probable reason is wrong class name, " +
+                            "or class is already loaded" +
                             "Class is skipped.");
                     continue;
                 }
@@ -251,8 +292,6 @@ public class LibsLoader implements LibrariesLoader {
                 allClasses.add(c);
                 logger.info("Class is added to list");
             } catch (MalformedURLException e) {
-                exceptionHandler.handle(e);
-            } catch (ClassNotFoundException e) {
                 exceptionHandler.handle(e);
             }
         }
@@ -324,12 +363,31 @@ public class LibsLoader implements LibrariesLoader {
         }
 
         for (String filePath : jarPaths) {
-            logger.info("Loaded jar: " + filePath);
+            logger.info("Loading jar: " + filePath);
+
+            //solution from: http://stackoverflow.com/questions/60764/how-should-i-load-jars-dynamically-at-runtime
+            /*
+            Works. Even with dependencies to other classes inside the jar. The first line was incomplete.
+            I used URLClassLoader child = new URLClassLoader (new URL[] {new URL("file://./my.jar")}, Main.class.getClassLoader());
+            assuming that the jar file is called my.jar and is located in the same directory. – jaw Feb 4 '15 at 14:04
+             */
+//            try {
+//                URLClassLoader child = new URLClassLoader( (new URL[]{new URL(filePath)}, ))
+//
+//            } catch (MalformedURLException e) {
+//                e.printStackTrace();
+//            }
+
+
+            //this variables are declared here, so i can print it in catch block;
+            String className ="";
+            String jarsPath = "";
             try {
 
                 logger.info("Jar file is going to be loaded.");
                 //load jar file
                 JarFile jar = new JarFile(filePath);
+                jarsPath = filePath;
                 if (jar == null) {
                     logger.error("Jar could not be loaded. Path to jar is probably wrong. " +
                             "This jar is skipping.");
@@ -366,31 +424,77 @@ public class LibsLoader implements LibrariesLoader {
                     logger.info("File is class");
 
                     //concating class path to get class name for UrlClassLoader
-                    String className = je.getName().substring(0, (je.getName().length() - 6));
+                    className = je.getName().substring(0, (je.getName().length() - 6));
                     className = className.replace('/', '.');
                     logger.info("Class name for UrlClassLoader: " + className);
 
                     //loading class
                     logger.info("Loading class");
-                    Class c = cl.loadClass(className);
-                    logger.info("Class is loaded: " + c.getName());
+                    Class c = null;
+                    try {
+                        c = this.loadClass(cl, className);
+                        logger.info("Class is loaded: " + c.getName());
+                    }catch (Exception exc){
+                        logger.error("Exception occurs for class:'" +className+"' in jar:'" +jarsPath+"'.");
+                        exceptionHandler.handle(exc);
+                    }
+
 
                     //adding class to class list for all loaded classes
-                    logger.info("Class will be added to list with all classes.");
-                    allClasses.add(c);
+                    if(c!=null) {
+                        logger.info("Class will be added to list with all classes.");
+                        allClasses.add(c);
+                    }else {
+                        logger.warn("Class "+className+" in jar "+jarsPath+" could not be loaded. Class is maybe already loaded (see previous check log).");
+                    }
                 }
 
             } catch (IOException e) {
-                exceptionHandler.handle(e);
-            } catch (ClassNotFoundException e) {
+                logger.error("IOException for class '" + className +"' in jar: '"+jarsPath+"'.");
                 exceptionHandler.handle(e);
             }
+
         }
 
         logger.debug("Loaded classes: ");
         allClasses.forEach(logger::debug);
 
         logger.info("Method ends.");
+    }
+
+    private Class loadClass(ClassLoader cl, String className) throws ClassNotFoundException{
+        Class c;
+
+        if(!isClassAlreadyLoaded(className)) {
+            logger.info("Check log: Class '"+className+"' is not loaded. Class will be loaded.");
+            c = cl.loadClass(className);
+        }else {
+            logger.warn("Check log: Class '"+className+"' is already loaded.");
+            c=null;
+        }
+
+        return c;
+    }
+
+    //TODO: implement this method, or do not use it
+    private boolean isClassAlreadyLoaded(String className) throws ClassNotFoundException {
+        /*
+        Implemented by solutions:
+        http://stackoverflow.com/questions/3678579/how-to-check-whether-a-class-is-initialized
+        http://stackoverflow.com/questions/482633/in-java-is-it-possible-to-know-whether-a-class-has-already-been-loaded
+         */
+//        not working
+//        Object o = findLoadedClass.invoke(systemClassLoader, className);
+//        boolean result = o!=null;
+//
+//        return result;
+
+//        not working
+//        Class c = Class.forName(className);
+//        boolean result = c!=null;
+//        return result;
+
+        return false;
     }
 }
 

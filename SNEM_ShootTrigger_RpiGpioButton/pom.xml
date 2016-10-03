@@ -3,18 +3,27 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <!--Sooo this module is little bit "troublemaker". You have to include dependencies,
+    because of PI4J library, but you can not include other dependency, which is already included in main platform
+    (e.g. ShotBoxToolsSet). So, you need package with bundled dependencies, but only with those, you really need. -->
+
+    <!-- You should not use this module, if you are not running ShotBox on Raspberry Pi-->
+
     <dependencies>
         <dependency>
             <groupId>sk.homisolutions.shotbox</groupId>
             <artifactId>ShotBoxToolsSet</artifactId>
             <version>0.1.0-Developing</version>
+            <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.pi4j</groupId>
-            <artifactId>pi4j-core</artifactId>
-            <version>1.1</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.pi4j</groupId>-->
+            <!--<artifactId>pi4j-core</artifactId>-->
+            <!--<version>1.1</version>-->
+        <!--</dependency>-->
 
+        <!--Getting freaky exception in LibsLoader: java.lang.ClassNotFoundException: javax.jms.MessageListener-->
     </dependencies>
 
     <parent>
@@ -26,6 +35,25 @@
     <artifactId>SNEM_ShootTrigger_RpiGpioButton</artifactId>
     <packaging>jar</packaging>
 
-
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

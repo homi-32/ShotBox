@@ -1,6 +1,5 @@
 package sk.homisolutions.shotbox.snem.shoottrigger.keyboard;
 
-import sk.homisolutions.shotbox.snem.shoottrigger.keyboard.notWorking.IsEnterPressed;
 import sk.homisolutions.shotbox.tools.api.external.trigger.ShootTrigger;
 import sk.homisolutions.shotbox.tools.api.internal.trigger.TriggerPlatformProvider;
 
@@ -13,8 +12,6 @@ public class TriggerRunner implements ShootTrigger{
     TriggerPlatformProvider provider;
 
     public TriggerRunner(){
-        Thread thread  = new Thread(this);
-        thread.start();
     }
 
     @Override
@@ -28,9 +25,13 @@ public class TriggerRunner implements ShootTrigger{
 
         Scanner scanner = new Scanner(System.in);
 
-        while (scanner.nextLine() != null){
-            provider.takeShoot();
-        }
+        String line = "";
+        do{
+            line = scanner.nextLine();
+//            if(line.equals("a")) {
+                provider.takeShoot();
+//            }
+        }while (line != null);
 
         System.out.println("------TRIGGER ENDS------");
     }

@@ -1,20 +1,21 @@
 package sk.homisolutions.shotbox.librariesloader.classloading_system;
 
+import com.google.gson.Gson;
 import org.apache.log4j.Logger;
 import sk.homisolutions.shotbox.librariesloader.api.LibrariesLoader;
 import sk.homisolutions.shotbox.librariesloader.exceptionhandling.ExceptionHandling;
 import sk.homisolutions.shotbox.librariesloader.settings.SystemSetup;
 import sk.homisolutions.shotbox.librariesloader.setup_loading.InitApplicationSetup;
+import sk.homisolutions.shotbox.tools.models.ShotboxManifest;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 /**
  * This class serve as tool for loading available .class files to application.
@@ -34,15 +35,7 @@ public class LibsLoader implements LibrariesLoader {
     private List<String> relevantFiles = new ArrayList<>();
     private List<Class> allClasses = new ArrayList<>();
     private List<Class> relevantClasses = new ArrayList<>();
-
-
-    /*
-    This properties are used only in 1 method, but this method is called zillion times.
-    This is good reason to store them here and do not resolve them by every method call.
-    (performance reason)
-    */
-    private Method findLoadedClass;
-    private ClassLoader systemClassLoader;
+    private List<ShotboxManifest> manifests = new ArrayList<>();
 
 
     /**
@@ -54,12 +47,6 @@ public class LibsLoader implements LibrariesLoader {
      */
     public LibsLoader() {
         logger.info("Object is being initialized.");
-
-        logger.info("Resolving method 'findLoadedClass'");
-        resolveMethodFindLoadedClass();
-
-        logger.info("Requesting system class loader");
-        systemClassLoader = ClassLoader.getSystemClassLoader();
 
         logger.info("Loader is going to load LLS settings from config file.");
         InitApplicationSetup.getInstance().init();
@@ -75,16 +62,6 @@ public class LibsLoader implements LibrariesLoader {
         logger.info("Loading classes process ends.");
 
         logger.info("Initializing object ends.");
-    }
-
-    private void resolveMethodFindLoadedClass() {
-        try {
-            findLoadedClass = ClassLoader.class.getDeclaredMethod("findLoadedClass", new Class[] { String.class });
-            findLoadedClass.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            logger.error("Error occurs while requesting method 'findLoadedClass'");
-            exceptionHandler.handle(e);
-        }
     }
 
 
@@ -136,6 +113,11 @@ public class LibsLoader implements LibrariesLoader {
         logger.info("***LLS*** Getting all classes:");
         allClasses.forEach(logger::info);
         return allClasses;
+    }
+
+    @Override
+    public List<ShotboxManifest> getShotboxManifests() {
+        return manifests;
     }
 
     private List<Class> loadClasses() {
@@ -395,6 +377,19 @@ public class LibsLoader implements LibrariesLoader {
                 }
                 logger.info("Jar file is loaded.");
 
+                logger.info("reading shotbox manifest from jar");
+                ShotboxManifest manifest = loadManifest(jar);
+                if(manifest == null) {
+                    logger.error("some error log");
+                    continue;
+                }
+                manifests.add(manifest);
+                logger.info("manifest was red successfully");
+
+                logger.info("resolving relevant classes to read from jar");
+                List<String> classPaths = getRelevantClassPaths(manifest);
+
+
                 //get jar content as enumeration
                 Enumeration e = jar.entries();
 
@@ -428,24 +423,29 @@ public class LibsLoader implements LibrariesLoader {
                     className = className.replace('/', '.');
                     logger.info("Class name for UrlClassLoader: " + className);
 
-                    //loading class
-                    logger.info("Loading class");
-                    Class c = null;
-                    try {
-                        c = this.loadClass(cl, className);
-                        logger.info("Class is loaded: " + c.getName());
-                    }catch (Exception exc){
-                        logger.error("Exception occurs for class:'" +className+"' in jar:'" +jarsPath+"'.");
-                        exceptionHandler.handle(exc);
-                    }
+                    if(isClassRelevant(className, classPaths)) {
+                        //loading class
+                        logger.info("Loading class");
+                        Class c = null;
+                        try {
+                            c = this.loadClass(cl, className);
+//                        logger.info("Class is loaded: " + c.getName());
+                        } catch (Exception exc) {
+                            logger.error("Exception occurs for class:'" + className + "' in jar:'" + jarsPath + "'.");
+                            exceptionHandler.handle(exc);
+                        }
 
 
-                    //adding class to class list for all loaded classes
-                    if(c!=null) {
-                        logger.info("Class will be added to list with all classes.");
-                        allClasses.add(c);
-                    }else {
-                        logger.warn("Class "+className+" in jar "+jarsPath+" could not be loaded. Class is maybe already loaded (see previous check log).");
+                        //adding class to class list for all loaded classes
+                        if (c != null) {
+                            logger.info("Class is loaded and will be added to list with all classes.");
+                            allClasses.add(c);
+                        } else {
+                            logger.warn("Class " + className + " in jar " + jarsPath + " could not be loaded. Class is maybe already loaded (see previous check log).");
+                        }
+                    }else{
+                        logger.info("not important to load");
+                        continue;
                     }
                 }
 
@@ -462,39 +462,65 @@ public class LibsLoader implements LibrariesLoader {
         logger.info("Method ends.");
     }
 
-    private Class loadClass(ClassLoader cl, String className) throws ClassNotFoundException{
-        Class c;
+    private boolean isClassRelevant(String className, List<String> classPaths) {
+        logger.info("Analyzing, if class '" +className +"' is relevant to load");
 
-        if(!isClassAlreadyLoaded(className)) {
-            logger.info("Check log: Class '"+className+"' is not loaded. Class will be loaded.");
+        for(String s: classPaths){
+            if(className.startsWith(s)){
+                logger.info("Class is relevant to load.");
+                return true;
+            }
+        }
+        logger.info("Class is not relevant to load");
+        return false;
+    }
+
+    private List<String> getRelevantClassPaths(ShotboxManifest manifest) {
+        return manifest.getImplementation_packages();
+    }
+
+    private ShotboxManifest loadManifest(JarFile jar) {
+        ShotboxManifest manifest = null;
+        Gson gson = new Gson();
+
+        //analyzing, if jar contain required manifest
+        ZipEntry entry = jar.getEntry("manifest.json");
+        if(entry==null){
+            logger.error("Jar file "+jar.getName()+" does not contain any manifest for ShotBox.");
+            return null;
+        }
+        logger.info("Manifest is present.");
+
+        try {
+            InputStream in = jar.getInputStream(entry);
+            int character;
+            String json="";
+            while ((character = in.read()) != -1){
+                json += (char) character;
+            }
+            logger.info("manufest: " +json);
+            manifest = gson.fromJson(json, ShotboxManifest.class);
+        } catch (IOException e) {
+//            e.printStackTrace();
+            logger.error("cannot read manifest.json: " +e.getMessage());
+            return null;
+        }
+
+        return manifest;
+    }
+
+    private Class loadClass(ClassLoader cl, String className) throws ClassNotFoundException{
+        Class c = null;
+
+        logger.info("Loading class: '" +className +"'");
+        try{
             c = cl.loadClass(className);
-        }else {
-            logger.warn("Check log: Class '"+className+"' is already loaded.");
-            c=null;
+        }catch (Throwable e){
+            logger.fatal("!!!! Class '"+className+"' could not be loaded");
+            exceptionHandler.handle(e);
         }
 
         return c;
-    }
-
-    //TODO: implement this method, or do not use it
-    private boolean isClassAlreadyLoaded(String className) throws ClassNotFoundException {
-        /*
-        Implemented by solutions:
-        http://stackoverflow.com/questions/3678579/how-to-check-whether-a-class-is-initialized
-        http://stackoverflow.com/questions/482633/in-java-is-it-possible-to-know-whether-a-class-has-already-been-loaded
-         */
-//        not working
-//        Object o = findLoadedClass.invoke(systemClassLoader, className);
-//        boolean result = o!=null;
-//
-//        return result;
-
-//        not working
-//        Class c = Class.forName(className);
-//        boolean result = c!=null;
-//        return result;
-
-        return false;
     }
 }
 

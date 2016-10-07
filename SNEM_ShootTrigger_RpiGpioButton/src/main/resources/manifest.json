@@ -1,0 +1,19 @@
+{
+  "name": "Raspberry GPIO button",
+  "implementation_packages": [
+    "sk.homisolutions.shotbox.snem.shoottrigger.rpigpiobutton.TriggerRunner"
+  ],
+  "settings_packages:" : [
+    ""
+  ],
+  "icon": "",
+
+  "author": "Homi",
+  "version": "1.0",
+  "description": "For triggering shot event.",
+  "contacts": [
+    "homisolutions@gmail.com"
+  ],
+  "update_url": "https://github.com/homi-32/ShotBox/",
+  "version_name": ""
+}

@@ -39,12 +39,20 @@ public class ExceptionHandling {
      *
      * @param e exception, which should be handled
      */
-    public void handle(Exception e){
-        logger.info("Method called, \nfor class: " +className +", \nexception: " +e);
-        logger.error("Class: " +className);
-        logger.error("Exception throwed: " +e.getClass().getSimpleName());
-        logger.error("Message: " +e.getMessage());
-        logger.error("Cause: " + e.getCause());
-        e.printStackTrace();
+    public void handle(Throwable t){
+        if(t instanceof Exception) {
+            logger.info("Method called, \nfor class: " + className + ", \nexception: " + t);
+            logger.error("Exception trowed: " +t.getClass().getSimpleName());
+        }else if (t instanceof Error){
+            logger.fatal("Method called, \nfor class: " + className + ", \nerror: " + t);
+            logger.fatal("Error trowed: " +t.getClass().getSimpleName());
+        }else {
+            logger.fatal("Method called, \nfor class: " + className + ", \n issue: " + t);
+            logger.fatal("Trowed: " +t.getClass().getSimpleName());
+        }
+        logger.fatal("Class: " +className);
+        logger.fatal("Message: " +t.getMessage());
+        logger.fatal("Cause: " + t.getCause());
+        t.printStackTrace();
     }
 }

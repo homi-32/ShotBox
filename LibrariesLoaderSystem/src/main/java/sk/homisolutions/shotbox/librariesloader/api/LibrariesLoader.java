@@ -1,6 +1,7 @@
 package sk.homisolutions.shotbox.librariesloader.api;
 
 import org.apache.log4j.Logger;
+import sk.homisolutions.shotbox.tools.models.ShotboxManifest;
 
 import java.util.List;
 
@@ -49,4 +50,14 @@ public interface LibrariesLoader {
      * @return non-filtered list with all loaded classes, which was presented in directory with libraries when this directory was scanned last time.
      */
     List<Class> getAllLoadedClasses();
+
+    /**
+     * This method return loaded ShotBox's manifests, which are part of every ShotBox External Modules.
+     * This manifests contain information about concrete module.
+     *
+     * @see ShotboxManifest
+     *
+     * @return List of loaded ShotboxManifests, which are part of every Shotbox External Module.
+     */
+    List<ShotboxManifest> getShotboxManifests();
 }

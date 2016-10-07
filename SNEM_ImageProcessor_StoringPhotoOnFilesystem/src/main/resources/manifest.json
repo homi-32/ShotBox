@@ -1,0 +1,19 @@
+{
+  "name": "Photo Saver",
+  "implementation_packages": [
+    "sk.homisolutions.shotbox.snem.imageprocessor.storingphotoonfilesystem"
+  ],
+  "settings_packages:" : [
+    ""
+  ],
+  "icon": "",
+
+  "author": "Homi",
+  "version": "1.0",
+  "description": "For storing photos on filesystem",
+  "contacts": [
+    "homisolutions@gmail.com"
+  ],
+  "update_url": "https://github.com/homi-32/ShotBox/",
+  "version_name": ""
+}

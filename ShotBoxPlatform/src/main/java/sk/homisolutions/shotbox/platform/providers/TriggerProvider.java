@@ -23,7 +23,12 @@ public class TriggerProvider implements TriggerPlatformProvider {
             List<SimpleCamera> cameras = ModulesManager.getInstance().getSimpleCameraModules();
 
             for (SimpleCamera c : cameras) {
-                c.takeShoot();
+                new Thread() {
+                    @Override
+                    public void run() {
+                        c.takeShoot();
+                    }
+                }.start();
             }
         }
     }

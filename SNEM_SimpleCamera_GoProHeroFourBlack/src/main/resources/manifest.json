@@ -1,0 +1,19 @@
+{
+  "name": "GoPro Hero 4 Black/Silver Camera Module",
+  "implementation_packages": [
+    "sk.homisolutions.shotbox.snem.simplecamera.gopro.GoProRemoteTool"
+  ],
+  "settings_packages:" : [
+    ""
+  ],
+  "icon": "",
+
+  "author": "Homi",
+  "version": "1.0",
+  "description": "Module for remoting GoPro camera Hero 4 Black/Silver",
+  "contacts": [
+    "homisolutions@gmail.com"
+  ],
+  "update_url": "https://github.com/homi-32/ShotBox",
+  "version_name": ""
+}

@@ -9,11 +9,6 @@
             <artifactId>ShotBoxToolsSet</artifactId>
             <version>0.1.0-Developing</version>
         </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-client</artifactId>
-            <version>2.23.2</version>
-        </dependency>
     </dependencies>
 
     <parent>

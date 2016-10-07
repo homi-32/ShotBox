@@ -1,0 +1,20 @@
+{
+  "name": "Great Module",
+  "implementation_packages": [
+    "sk.homisolutions.shotbox.snem.greatmodule.firstclass",
+    "sk.homisolutions.shotbox.snem.greatmodule.secondclass"
+  ],
+  "settings_packages:" : [
+    "sk.homisolutions.shotbox.snem.greatmodule.settingsclasses"
+  ],
+  "icon": "icon.png",
+
+  "author": "Homi",
+  "version": "1.0.5",
+  "description": "Very usefull module",
+  "contacts": [
+    "homisolutions@gmail.com"
+  ],
+  "update_url": "https://github.com/homi-32/ShotBox",
+  "version_name": "phoenix"
+}

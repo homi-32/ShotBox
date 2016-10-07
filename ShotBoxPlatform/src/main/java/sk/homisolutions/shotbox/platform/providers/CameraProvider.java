@@ -25,7 +25,12 @@ public class CameraProvider implements CameraPlatformProvider{
             List<ImageProcessor> imageProcessors = ModulesManager.getInstance().getImageProcessorModules();
 
             for (ImageProcessor im: imageProcessors) {
-                im.processImage(picture);
+                new Thread(){
+                    @Override
+                    public void run() {
+                        im.processImage(picture);
+                    }
+                }.start();
             }
         }
     }

@@ -1,0 +1,24 @@
+- module needs to have at least 1 class, which is implementing at least 1 interface/api from package:
+  sk.homisolutions.shotbox.tools.api.external
+- module needs to be packed as .jar file with all dependencies
+- module needs to have icon.png in resources; icon will be used in GUI
+- module needs to have manifest.json in resources, which contains:
+  + property 'name' with value, which have to be unique (module will be identified with this name;
+    if more modules will have same name, they will receive same messages)
+  + property 'implementation_packages' with package sources of class/es
+    which is/are implementing at least 1 ShotBox external interface/api
+    (there is no need for 1 package source per class, programmer can put
+     just 1 parent package sourse, but it has to be concrete enought
+     for module and it can not include any dependencies)
+  + property 'settings_packages' is same as 'implementation_packages',
+    but it should contain package sources to classes, which are representing
+    settings for module
+  + property 'icon' which contains filepath to icon in resource
+
+- optional property:
+  + 'author'
+  + 'version'
+  + 'description'
+  + 'contacts'
+  + 'update_url'
+  + 'version_name'

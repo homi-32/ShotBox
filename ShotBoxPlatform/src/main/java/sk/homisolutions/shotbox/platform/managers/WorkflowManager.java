@@ -179,6 +179,7 @@ public class WorkflowManager {
     }
 
     private void triggerCameraModules() {
+        shotCanBeTaken = true;
         allowToProvidePicture = true;
         for(SimpleCamera camera: ModulesManager.getInstance().getSimpleCameraModules()){
             doesCameraAlreadyTookPicture.put(camera, false);

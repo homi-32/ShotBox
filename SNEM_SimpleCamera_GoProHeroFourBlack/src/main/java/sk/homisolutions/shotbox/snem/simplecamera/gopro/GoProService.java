@@ -14,6 +14,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.log4j.Logger;
+import sk.homisolutions.shotbox.tools.api.external.camera.SimpleCamera;
 import sk.homisolutions.shotbox.tools.api.internal.camera.CameraPlatformProvider;
 import sk.homisolutions.shotbox.tools.models.MimeTypes;
 import sk.homisolutions.shotbox.tools.models.TakenPicture;
@@ -36,10 +37,12 @@ public class GoProService {
     private static final Logger logger = Logger.getLogger(GoProService.class);
 
     private CameraPlatformProvider provider;
+    private SimpleCamera camera;
     private Client client;
 
-    public GoProService(CameraPlatformProvider provider) {
+    public GoProService(CameraPlatformProvider provider, SimpleCamera camera) {
         this.provider = provider;
+        this.camera = camera;
         this.client = ClientBuilder.newClient();
     }
 
@@ -57,8 +60,9 @@ public class GoProService {
         setPhotoModeOnGoPro();
         setupGoproBeforeTakingPicture();
         takePicture();
+        provider.notifyPictureIsTaken(camera);
         processTakenPicture(picture);
-        provider.provideTakenPicture(picture);
+        provider.provideTakenPicture(picture, camera);
 
     }
 

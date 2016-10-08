@@ -1,8 +1,9 @@
 package sk.homisolutions.shotbox.snem.imageprocessor.storingphotoonfilesystem;
 
 import org.apache.log4j.Logger;
-import sk.homisolutions.shotbox.tools.api.external.imageprocessing.ImageProcessor;
-import sk.homisolutions.shotbox.tools.api.internal.imageprocessor.ImageProcessorPlatformProvider;
+import sk.homisolutions.shotbox.tools.api.external.imageprocessing.ImageHandler;
+import sk.homisolutions.shotbox.tools.api.internal.imageprocessor.ImageHandlerPlatformProvider;
+import sk.homisolutions.shotbox.tools.models.ShotBoxMessage;
 import sk.homisolutions.shotbox.tools.models.TakenPicture;
 
 import java.io.FileNotFoundException;
@@ -15,18 +16,18 @@ import java.util.Date;
 /**
  * Created by homi on 8/30/16.
  */
-public class StoringService implements ImageProcessor {
+public class StoringService implements ImageHandler {
     private static final Logger logger = Logger.getLogger(StoringService.class);
 
-    private ImageProcessorPlatformProvider provider;
+    private ImageHandlerPlatformProvider provider;
 
     @Override
-    public void setProvider(ImageProcessorPlatformProvider provider) {
+    public void setProvider(ImageHandlerPlatformProvider provider) {
         this.provider = provider;
     }
 
     @Override
-    public void processImage(TakenPicture picture) {
+    public void handleImage(TakenPicture picture) {
         logger.fatal("storing picture");
         String filepath = resolveFilePath(picture);
 
@@ -41,6 +42,8 @@ public class StoringService implements ImageProcessor {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            provider.pictureIsAlreadyHandled(picture, this);
         }
     }
 
@@ -60,6 +63,11 @@ public class StoringService implements ImageProcessor {
 
     @Override
     public void run() {
+
+    }
+
+    @Override
+    public void receiveGlobalMessage(ShotBoxMessage message) {
 
     }
 }

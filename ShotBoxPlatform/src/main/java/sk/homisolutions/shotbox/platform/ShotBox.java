@@ -1,39 +1,68 @@
 package sk.homisolutions.shotbox.platform;
 
 import org.apache.log4j.Logger;
-import sk.homisolutions.shotbox.librariesloader.api.LibrariesLoader;
-import sk.homisolutions.shotbox.librariesloader.classloading_system.NativeLibsLoaderFactory;
-import sk.homisolutions.shotbox.platform.providers.TriggerProvider;
-import sk.homisolutions.shotbox.tools.api.external.camera.SimpleCamera;
-import sk.homisolutions.shotbox.tools.api.external.trigger.ShootTrigger;
-import sk.homisolutions.shotbox.tools.api.internal.trigger.TriggerPlatformProvider;
-
-import java.util.List;
+import sk.homisolutions.shotbox.platform.managers.ModulesManager;
+import sk.homisolutions.shotbox.platform.managers.ProvidersManager;
+import sk.homisolutions.shotbox.platform.managers.WorkflowManager;
+import sk.homisolutions.shotbox.tools.models.ShotboxManifest;
 
 /**
  * Created by homi on 4/20/16.
  */
 public class ShotBox {
     private static final Logger logger = Logger.getLogger(ShotBox.class);
+    public static ShotBox INSTANCE = null;
 
 
     public static void main(String[] args){
         logger.info("Application start");
 
         ShotBox shotbox = new ShotBox();
+        INSTANCE = shotbox;
 
         shotbox.initializeProviders();
         shotbox.initializeExternalModules();
 
-        try {
-            logger.fatal("infinite loop starts");
-            while (true){
-                Thread.sleep(1000);
+        shotbox.checkNecessaryParts();
+
+        shotbox.startApplication();
+    }
+
+    private void checkNecessaryParts() {
+        boolean triggersAvailable = ModulesManager.getInstance().getShootTriggerModules().size() >0;
+        boolean camerasAvailable = ModulesManager.getInstance().getSimpleCameraModules().size() >0;
+        boolean imageHandlersAvailable = ModulesManager.getInstance().getImageHandlerModules().size() >0;
+        
+        if(!(triggersAvailable && camerasAvailable && imageHandlersAvailable)){
+            logger.fatal("Necessary modules to run are missing:");
+            if(!triggersAvailable){
+                logger.fatal("Missing any trigger");
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            if(!camerasAvailable){
+                logger.fatal("Missing any camera module");
+            }
+            if(!imageHandlersAvailable){
+                logger.fatal("Missing any image handler");
+            }
+            endApplication();
         }
-        logger.info("Application ends");
+    }
+
+    public static ShotBox getInstance(){
+        return INSTANCE;
+    }
+
+    private ShotBox(){
+
+    }
+
+    private void startApplication() {
+        new Thread(){
+            @Override
+            public void run() {
+                WorkflowManager.getInstance().startWorkflow();
+            }
+        }.start();
     }
 
     private void initializeExternalModules() {
@@ -42,6 +71,18 @@ public class ShotBox {
 
     private void initializeProviders() {
         ProvidersManager.getInstance().initializeProviders();
+    }
+
+    public void endApplication(){
+        WorkflowManager.getInstance().endWorkflow();
+        ModulesManager.getInstance().sendShutdownMessageToModules();
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        logger.fatal("exit");
+        System.exit(0);
     }
 
     /*

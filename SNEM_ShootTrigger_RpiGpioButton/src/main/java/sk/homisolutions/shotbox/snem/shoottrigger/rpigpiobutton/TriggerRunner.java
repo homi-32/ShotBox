@@ -6,6 +6,7 @@ import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import org.apache.log4j.Logger;
 import sk.homisolutions.shotbox.tools.api.external.trigger.ShootTrigger;
 import sk.homisolutions.shotbox.tools.api.internal.trigger.TriggerPlatformProvider;
+import sk.homisolutions.shotbox.tools.models.ShotBoxMessage;
 
 /**
  * Created by homi on 8/29/16.
@@ -22,8 +23,13 @@ public class TriggerRunner implements ShootTrigger {
 
     private GpioController gpio;
     private GpioPinDigitalInput button;
+    private ShootTrigger INSTANCE;
+
+    private boolean runningState = true;
 
     public TriggerRunner(){
+
+        INSTANCE = this;
 
         //requesting access to GPIO 4 / Physical pin 7 / PI4J pin 07
         Pin pin = new ShotboxGpioHelper().resolveGpioPin(Constants.GPIO_PIN);
@@ -44,7 +50,7 @@ public class TriggerRunner implements ShootTrigger {
                     //if pin is receiving signal (pull down logic), button is pushed
                     if (gpioPinDigitalStateChangeEvent.getState().isHigh()){
                         logger.info("Trigger pushed");
-                        provider.takeShoot();
+                        provider.takeShoot(INSTANCE);
                     }
                 }
             });
@@ -59,12 +65,19 @@ public class TriggerRunner implements ShootTrigger {
 
     @Override
     public void run() {
-        while (true){
+        while (runningState){
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    @Override
+    public void receiveGlobalMessage(ShotBoxMessage message) {
+        if(message.isShutdown()){
+            runningState = false;
         }
     }
 

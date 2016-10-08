@@ -3,6 +3,7 @@ package sk.homisolutions.shotbox.snem.simplecamera.gopro.multithread_solution_de
 import org.apache.log4j.Logger;
 import sk.homisolutions.shotbox.tools.api.external.camera.SimpleCamera;
 import sk.homisolutions.shotbox.tools.api.internal.camera.CameraPlatformProvider;
+import sk.homisolutions.shotbox.tools.models.ShotBoxMessage;
 
 /**
  * Created by homi on 8/22/16.
@@ -52,6 +53,11 @@ public class GoProRemoteToolOld implements SimpleCamera {
 
     @Override
     public void run() {
+
+    }
+
+    @Override
+    public void receiveGlobalMessage(ShotBoxMessage message) {
 
     }
 }

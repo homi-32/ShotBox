@@ -23,7 +23,7 @@
     </parent>
 
     <groupId>sk.homisolutions.shotbox</groupId>
-    <artifactId>SNEM_ImageProcessor_StoringPhotoOnFilesystem</artifactId>
+    <artifactId>SNEM_ImageHandler_StoringPhotoOnFilesystem</artifactId>
     <packaging>jar</packaging>
 
     

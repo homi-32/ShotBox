@@ -1,5 +1,6 @@
 import sk.homisolutions.shotbox.tools.api.external.camera.SimpleCamera;
 import sk.homisolutions.shotbox.tools.api.internal.camera.CameraPlatformProvider;
+import sk.homisolutions.shotbox.tools.models.ShotBoxMessage;
 
 /**
  * Created by homi on 4/20/16.
@@ -20,6 +21,11 @@ public class Class1 implements SimpleCamera{
 
     @Override
     public void run() {
+
+    }
+
+    @Override
+    public void receiveGlobalMessage(ShotBoxMessage message) {
 
     }
 }

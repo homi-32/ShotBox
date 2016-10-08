@@ -3,6 +3,7 @@ package sk.homisolutions.shotbox.snem.simplecamera.gopro;
 import org.apache.log4j.Logger;
 import sk.homisolutions.shotbox.tools.api.external.camera.SimpleCamera;
 import sk.homisolutions.shotbox.tools.api.internal.camera.CameraPlatformProvider;
+import sk.homisolutions.shotbox.tools.models.ShotBoxMessage;
 import sk.homisolutions.shotbox.tools.models.TakenPicture;
 
 /**
@@ -43,7 +44,12 @@ public class GoProRemoteTool implements SimpleCamera {
             if(provider == null){
                 throw new SNEM_SimpleCamera_GoPro_Exception("Camera Platform Provider is not available");
             }
-            service = new GoProService(provider);
+            service = new GoProService(provider, this);
         }
+    }
+
+    @Override
+    public void receiveGlobalMessage(ShotBoxMessage message) {
+
     }
 }

@@ -55,7 +55,8 @@ public class GoProServiceOld implements Runnable{
             takePicture();
             byte[] takenPhoto = getTakenPhoto();
             setupTakenPicture(takenPhoto);
-            provider.provideTakenPicture(picture);
+            provider.provideTakenPicture(picture, null);
+            throw new SNEM_SimpleCamera_GoPro_Exception("Old not-working implementation used");
         } catch (Exception e){
             e.printStackTrace();
         }

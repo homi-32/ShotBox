@@ -1,13 +1,13 @@
 package sk.homisolutions.shotbox.platform.providers;
 
 import org.apache.log4j.Logger;
-import sk.homisolutions.shotbox.platform.ModulesManager;
+import sk.homisolutions.shotbox.platform.managers.ModulesManager;
+import sk.homisolutions.shotbox.platform.managers.WorkflowManager;
 import sk.homisolutions.shotbox.tools.api.external.camera.SimpleCamera;
-import sk.homisolutions.shotbox.tools.api.external.imageprocessing.ImageProcessor;
+import sk.homisolutions.shotbox.tools.api.external.general.ShotBoxExternalModule;
 import sk.homisolutions.shotbox.tools.api.internal.camera.CameraPlatformProvider;
+import sk.homisolutions.shotbox.tools.models.ShotBoxMessage;
 import sk.homisolutions.shotbox.tools.models.TakenPicture;
-
-import java.util.List;
 
 /**
  * Created by homi on 8/20/16.
@@ -18,20 +18,38 @@ public class CameraProvider implements CameraPlatformProvider{
     //every thread can has own property with: private ThreadLocal<String> name; http://tutorials.jenkov.com/java-concurrency/threadlocal.html
 
     @Override
-    public void provideTakenPicture(TakenPicture picture) {
+    public void provideTakenPicture(TakenPicture picture, SimpleCamera camera) {
         synchronized (CameraProvider.class) {
-            logger.fatal("picture is taken");
+            WorkflowManager.getInstance().provideTakenPicture(picture, camera);
 
-            List<ImageProcessor> imageProcessors = ModulesManager.getInstance().getImageProcessorModules();
 
-            for (ImageProcessor im: imageProcessors) {
-                new Thread(){
-                    @Override
-                    public void run() {
-                        im.processImage(picture);
-                    }
-                }.start();
-            }
+            //TODO: don't forget this is commented
+//            logger.fatal("picture is taken");
+//
+//            List<ImageHandler> imageProcessors = ModulesManager.getInstance().getImageHandlerModules();
+//
+//            for (ImageHandler im: imageProcessors) {
+//                new Thread(){
+//                    @Override
+//                    public void run() {
+//                        im.handleImage(picture);
+//                    }
+//                }.start();
+//            }
+        }
+    }
+
+    @Override
+    public void notifyPictureIsTaken(SimpleCamera camera) {
+        synchronized (CameraProvider.class){
+            WorkflowManager.getInstance().shotIsTaken(camera);
+        }
+    }
+
+    @Override
+    public void sendGlobalMessage(ShotBoxMessage message, ShotBoxExternalModule module) {
+        synchronized (CameraProvider.class){
+            ModulesManager.getInstance().propagateMessage(message, module);
         }
     }
 }

@@ -10,7 +10,7 @@
         <version>0.1.0-Developing</version>
     </parent>
 
-    <artifactId>Platform</artifactId>
+    <artifactId>ShotBoxPlatform</artifactId>
 
     <!--
            Not exactly sure, what this mean, but It works

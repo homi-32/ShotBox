@@ -42,7 +42,7 @@
 
         <!-- Implementation of Image processor module for storing photos on Filesystem.
         This module is temporary and will removed lately with implementation-->
-        <module>SNEM_ImageProcessor_StoringPhotoOnFilesystem</module>
+        <module>SNEM_ImageHandler_StoringPhotoOnFilesystem</module>
     </modules>
 
     <properties>

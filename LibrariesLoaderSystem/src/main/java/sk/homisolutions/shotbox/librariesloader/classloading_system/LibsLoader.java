@@ -179,7 +179,7 @@ public class LibsLoader implements LibrariesLoader {
 
     private void loadStandaloneClass(List<String> classPaths) {
 
-        logger.info("Method called.");
+        logger.debug("Method called.");
 
         if (classPaths == null) {
             logger.error("Input list with classes' path is null. Something is wrong and needs to debug. " +
@@ -215,16 +215,16 @@ public class LibsLoader implements LibrariesLoader {
             className = className.substring(0, className.indexOf("."));
             className = className.replace(File.separator, ".");
 
-            logger.info("Calcualted class path: " +
+            logger.debug("Calcualted class path: " +
                     directoryPath + " : " +
                     className + " -");
             try {
                 if (!actualDirPath.equals(directoryPath)) {
-                    logger.info("New dir path is calculated for ClassLoader: '" + directoryPath
+                    logger.debug("New dir path is calculated for ClassLoader: '" + directoryPath
                             + "' old one: '" + actualDirPath + "'.");
                     actualDirPath = directoryPath;
 
-                    logger.info("Classloader is going to be initialized.");
+                    logger.debug("Classloader is going to be initialized.");
                     classLoader = initClassLoader(directoryPath);
                     if (classLoader == null) {
                         logger.error("Classloader is null -> could not be initialized. Nothing can be loaded.");
@@ -247,9 +247,9 @@ public class LibsLoader implements LibrariesLoader {
                     continue;
                 }
 
-                logger.info("Actual dir path for Classloader: " + actualDirPath);
+                logger.debug("Actual dir path for Classloader: " + actualDirPath);
 
-                logger.info("Class is going to be loaded: " + className);
+                logger.debug("Class is going to be loaded: " + className);
 
 
                 Class c = null;
@@ -272,7 +272,7 @@ public class LibsLoader implements LibrariesLoader {
                 }
 
                 allClasses.add(c);
-                logger.info("Class is added to list");
+                logger.debug("Class is added to list");
             } catch (MalformedURLException e) {
                 exceptionHandler.handle(e);
             }
@@ -282,11 +282,11 @@ public class LibsLoader implements LibrariesLoader {
 
         allClasses.forEach(logger::debug);
 
-        logger.info("Method ends.");
+        logger.debug("Method ends.");
     }
 
     private URLClassLoader initClassLoader(String path) throws MalformedURLException {
-        logger.info("Method called.");
+        logger.debug("Method called.");
 
         if (path == null) {
             logger.error("Input path is null. No Classloader will be initialized. Quitting this action." +
@@ -331,7 +331,7 @@ public class LibsLoader implements LibrariesLoader {
 
 
     private void loadClassesFromJar(List<String> jarPaths) {
-        logger.info("Method called");
+        logger.debug("Method called");
 
         if (jarPaths == null) {
             logger.error("Input list with jars' path is null. Something is wrong and needs to debug. " +
@@ -366,7 +366,7 @@ public class LibsLoader implements LibrariesLoader {
             String jarsPath = "";
             try {
 
-                logger.info("Jar file is going to be loaded.");
+                logger.debug("Jar file is going to be loaded.");
                 //load jar file
                 JarFile jar = new JarFile(filePath);
                 jarsPath = filePath;
@@ -375,7 +375,7 @@ public class LibsLoader implements LibrariesLoader {
                             "This jar is skipping.");
                     continue;
                 }
-                logger.info("Jar file is loaded.");
+                logger.debug("Jar file is loaded.");
 
                 logger.info("reading shotbox manifest from jar");
                 ShotboxManifest manifest = loadManifest(jar);
@@ -384,9 +384,9 @@ public class LibsLoader implements LibrariesLoader {
                     continue;
                 }
                 manifests.add(manifest);
-                logger.info("manifest was red successfully");
+                logger.debug("manifest was red successfully");
 
-                logger.info("resolving relevant classes to read from jar");
+                logger.debug("resolving relevant classes to read from jar");
                 List<String> classPaths = getRelevantClassPaths(manifest);
 
 
@@ -401,35 +401,36 @@ public class LibsLoader implements LibrariesLoader {
                             "Path to jar is probably wrong. This jar is skipping.");
                     continue;
                 }
-                logger.info("Classloader for jar is created.");
+                logger.debug("Classloader for jar is created.");
 
                 //enumerating jar content
+
                 while (e.hasMoreElements()) {
 
                     //getting file from jar
                     JarEntry je = (JarEntry) e.nextElement();
 
                     //check, if file is directory, or something else, but not class
-                    logger.info("File in jar: " + je.getName());
+                    logger.debug("File in jar: " + je.getName());
                     if (je.isDirectory() || !je.getName().endsWith(".class")) {
-                        logger.info("File is not class.");
+                        logger.debug("File is not class.");
                         continue;
                     }
 
-                    logger.info("File is class");
+                    logger.debug("File is class");
 
                     //concating class path to get class name for UrlClassLoader
                     className = je.getName().substring(0, (je.getName().length() - 6));
                     className = className.replace('/', '.');
-                    logger.info("Class name for UrlClassLoader: " + className);
+                    logger.debug("Class name for UrlClassLoader: " + className);
 
                     if(isClassRelevant(className, classPaths)) {
                         //loading class
-                        logger.info("Loading class");
+                        logger.debug("Loading class");
                         Class c = null;
                         try {
                             c = this.loadClass(cl, className);
-//                        logger.info("Class is loaded: " + c.getName());
+                        logger.info("Class is loaded: " + c.getName());
                         } catch (Exception exc) {
                             logger.error("Exception occurs for class:'" + className + "' in jar:'" + jarsPath + "'.");
                             exceptionHandler.handle(exc);
@@ -438,13 +439,13 @@ public class LibsLoader implements LibrariesLoader {
 
                         //adding class to class list for all loaded classes
                         if (c != null) {
-                            logger.info("Class is loaded and will be added to list with all classes.");
+                            logger.debug("Class is loaded and will be added to list with all classes.");
                             allClasses.add(c);
                         } else {
                             logger.warn("Class " + className + " in jar " + jarsPath + " could not be loaded. Class is maybe already loaded (see previous check log).");
                         }
                     }else{
-                        logger.info("not important to load");
+                        logger.debug("not important to load");
                         continue;
                     }
                 }
@@ -463,15 +464,15 @@ public class LibsLoader implements LibrariesLoader {
     }
 
     private boolean isClassRelevant(String className, List<String> classPaths) {
-        logger.info("Analyzing, if class '" +className +"' is relevant to load");
+        logger.debug("Analyzing, if class '" +className +"' is relevant to load");
 
         for(String s: classPaths){
             if(className.startsWith(s)){
-                logger.info("Class is relevant to load.");
+                logger.debug("Class is relevant to load.");
                 return true;
             }
         }
-        logger.info("Class is not relevant to load");
+        logger.debug("Class is not relevant to load");
         return false;
     }
 
@@ -498,7 +499,7 @@ public class LibsLoader implements LibrariesLoader {
             while ((character = in.read()) != -1){
                 json += (char) character;
             }
-            logger.info("manufest: " +json);
+            logger.debug("manufest: " +json);
             manifest = gson.fromJson(json, ShotboxManifest.class);
         } catch (IOException e) {
 //            e.printStackTrace();
@@ -509,10 +510,11 @@ public class LibsLoader implements LibrariesLoader {
         return manifest;
     }
 
+
     private Class loadClass(ClassLoader cl, String className) throws ClassNotFoundException{
         Class c = null;
 
-        logger.info("Loading class: '" +className +"'");
+        logger.debug("Loading class: '" +className +"'");
         try{
             c = cl.loadClass(className);
         }catch (Throwable e){

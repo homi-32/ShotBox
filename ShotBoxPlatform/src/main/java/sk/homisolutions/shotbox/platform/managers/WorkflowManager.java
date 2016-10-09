@@ -16,10 +16,12 @@ import java.util.*;
  */
 public class WorkflowManager {
 
+    /** Self managements **/
     private static final Logger logger = Logger.getLogger(WorkflowManager.class);
     private static final WorkflowManager INSTANCE = new WorkflowManager();
 
     private boolean workflowState;
+    /** Self management ends **/
 
     /** Safety Catch state variables **/
     private Thread safetyCatch;
@@ -43,6 +45,7 @@ public class WorkflowManager {
 
     /** end of Safety Catch variables **/
 
+    /** Self managements and Safety catch methods **/
     private WorkflowManager(){
         //singleton
         resetWorkflow();
@@ -114,9 +117,13 @@ public class WorkflowManager {
     public void endWorkflow(){
         workflowState = false;
     }
+    /** Self management and Safety Catch ends **/
+
+    /** Standard Workflow starts here **/
 
     public void shotWasTriggered(ShootTrigger trigger){
         if(!lockedTriggers) {
+            logger.fatal("Triggered shot timestamp: " +System.currentTimeMillis());
             lockAllTriggers();
             if(ModulesManager.getInstance().isAnySceneControllerAvailable()) {
                 prepareDevicesToTakingShot();
@@ -217,6 +224,8 @@ public class WorkflowManager {
                     releaseDeviceAfterTakingShot();
                 }
             }
+
+            logger.fatal("shot taken timestamp: " +System.currentTimeMillis());
         }else {
             logger.error("Denial access recorded");
         }
@@ -241,6 +250,8 @@ public class WorkflowManager {
                     }
                 }.start();
             }
+
+            logger.fatal("picture provided timestamp: " +System.currentTimeMillis());
         }else {
             logger.error("Denial access recorded");
         }
@@ -336,6 +347,7 @@ public class WorkflowManager {
                     if(entry.getValue() == false)
                         return;
                 }
+                logger.fatal("workflow ends timestamp: " +System.currentTimeMillis());
                 resetWorkflow();
             }
         }else {
@@ -350,5 +362,7 @@ public class WorkflowManager {
             }
         }
     }
+
+    /** Standard Workflow ends here **/
 
 }

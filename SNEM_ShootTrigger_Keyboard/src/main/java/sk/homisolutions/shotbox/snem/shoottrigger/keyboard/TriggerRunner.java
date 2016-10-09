@@ -31,6 +31,7 @@ public class TriggerRunner implements ShootTrigger{
             do {
                 line = scanner.nextLine();
 //            if(line.equals("a")) {
+                System.out.println("**FATAL: timestamp: " +System.currentTimeMillis());
                 provider.takeShoot(this);
 //            }
             } while (line != null);

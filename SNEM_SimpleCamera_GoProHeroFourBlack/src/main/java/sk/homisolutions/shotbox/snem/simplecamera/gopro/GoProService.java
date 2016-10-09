@@ -44,6 +44,46 @@ public class GoProService {
         this.provider = provider;
         this.camera = camera;
         this.client = ClientBuilder.newClient();
+        initialSetup();
+    }
+
+    private void initialSetup(){
+        WebTarget target;
+        Response response;
+
+        logger.info("Initial module setup");
+
+        //turning on quick capture feature
+        logger.info("Setting quick capture feature");
+        target = client.target(Constants.QUICK_CAPTURE_ON);
+        response  = target.request().get();
+        checkResponseStatus(response);
+
+        //turning on gyro-based photo orientation
+        logger.info("Setting gyro-based orientation");
+        target = client.target(Constants.GYRO_BASED_ORIENTATION);
+        response  = target.request().get();
+        checkResponseStatus(response);
+
+        //turning on white balance feature
+        logger.info("enabling native white balance");
+        target = client.target(Constants.SET_NATIVE_WHITE_BALANCE_FOR_PHOTO);
+        response  = target.request().get();
+        checkResponseStatus(response);
+
+        //turn on gopro color protune feature
+        logger.info("enabling gopro color coloration");
+        target = client.target(Constants.SET_COLOR_TO_GOPRO_FOR_PHOTO);
+        response  = target.request().get();
+        checkResponseStatus(response);
+
+        //setting gopro resolution
+        logger.info("setting medium photo resolution");
+        target = client.target(Constants.SET_PHOTO_RESOLUTION_TO_MEDIUM_7MP);
+        response  = target.request().get();
+        checkResponseStatus(response);
+
+        setPhotoModeOnGoPro();
     }
 
     public void takePhotoViaGoPro(TakenPicture pic){
@@ -67,7 +107,7 @@ public class GoProService {
     }
 
     private void setPhotoModeOnGoPro() {
-        logger.fatal("setting photo mode for gopro");
+        logger.info("setting photo mode for gopro");
         WebTarget target = client.target(Constants.TURN_ON_PHOTO);
         Response response = target.request().get();
         checkResponseStatus(response);
@@ -206,9 +246,9 @@ public class GoProService {
             e.printStackTrace();
         }
 
-        logger.info("getted response: " +json);
+        logger.debug("getted response: " +json);
         if (json.length() > 0){
-            logger.info("resolving photo name from response");
+            logger.debug("resolving photo name from response");
             String photoName = resolveLatestPhoto(json);
 
             logger.info("name is resolved: " +photoName);
@@ -239,7 +279,7 @@ public class GoProService {
             json = json.substring(0, indexONE);
         }
         Collections.sort(photos);
-        photos.forEach(logger::info);
+        photos.forEach(logger::debug);
         name = String.valueOf(photos.get(photos.size()-1));
         while(name.length() < 4){
             name = "0"+name;

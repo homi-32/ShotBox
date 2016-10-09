@@ -41,7 +41,7 @@ class FilesFilter {
      * @param classes empty list, which will be fulfilled by method. It will contain paths to class files
      */
     public void filterPresentedFiles(List<String> allFiles, List<String> jars, List<String> classes) {
-        logger.info("Method called.");
+        logger.debug("Method called.");
 
         if(jars == null || classes == null){
             logger.error("Some programmer did something wrong. Input arrays are null: " +
@@ -217,36 +217,36 @@ class FilesFilter {
 
 
     private boolean isClass(String filePath) {
-        logger.info("Method called.");
+        logger.debug("Method called.");
         if(filePath == null || filePath.equals("")){
             logger.error("Input filepath is not valid: " +filePath);
             return false;
         }
-        logger.info("Analyzed filename: " + filePath);
+        logger.debug("Analyzed filename: " + filePath);
         if(filePath.endsWith(".class")) {
-            logger.info("Result: true.");
-            logger.info("Methods ends.");
+            logger.debug("Result: true.");
+            logger.debug("Methods ends.");
             return true;
         }
-        logger.info("Result: false.");
-        logger.info("Methods ends.");
+        logger.debug("Result: false.");
+        logger.debug("Methods ends.");
         return false;
     }
 
     private boolean isJar(String filePath) {
-        logger.info("Method called.");
+        logger.debug("Method called.");
         if(filePath == null || filePath.equals("")){
             logger.error("Input filepath is not valid: " +filePath);
             return false;
         }
-        logger.info("Analyzed filename: " + filePath);
+        logger.debug("Analyzed filename: " + filePath);
         if(filePath.endsWith(".jar")) {
-            logger.info("Result: true.");
-            logger.info("Methods ends.");
+            logger.debug("Result: true.");
+            logger.debug("Methods ends.");
             return true;
         }
-        logger.info("Result: false.");
-        logger.info("Methods ends.");
+        logger.debug("Result: false.");
+        logger.debug("Methods ends.");
         return false;
     }
 

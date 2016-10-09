@@ -5,6 +5,7 @@ import sk.homisolutions.shotbox.librariesloader.api.LibrariesLoader;
 import sk.homisolutions.shotbox.librariesloader.classloading_system.NativeLibsLoaderFactory;
 import sk.homisolutions.shotbox.platform.ShotBox;
 import sk.homisolutions.shotbox.platform.support.IncomeMessageChecker;
+import sk.homisolutions.shotbox.tools.api.external.camera.AdvancedCamera;
 import sk.homisolutions.shotbox.tools.api.external.camera.SimpleCamera;
 import sk.homisolutions.shotbox.tools.api.external.general.ShotBoxExternalModule;
 import sk.homisolutions.shotbox.tools.api.external.imageprocessing.ImageFilter;
@@ -26,6 +27,8 @@ public class ModulesManager {
     private static final Logger logger = Logger.getLogger(ModulesManager.class);
     private static final ModulesManager INSTANCE = new ModulesManager();
 
+    private boolean objectIsLoaded = false;
+
     private List<ShotBoxExternalModule> modules;
 
     private List<SimpleCamera> simpleCameraModules;
@@ -33,6 +36,7 @@ public class ModulesManager {
     private List<ImageHandler> imageHandlerModules;
     private List<SceneController> sceneModules;
     private List<ImageFilter> filterModules;
+    private List<AdvancedCamera> advancedCameraModules;
 
     //TODO: do i need this??? Maybe it will be helpful lately
     private List<Thread> threads;
@@ -48,6 +52,7 @@ public class ModulesManager {
         imageHandlerModules = new ArrayList<>();
         sceneModules = new ArrayList<>();
         filterModules = new ArrayList<>();
+        advancedCameraModules = new ArrayList<>();
         threads = new LinkedList<>();
     }
 
@@ -75,6 +80,10 @@ public class ModulesManager {
         return filterModules;
     }
 
+    public List<AdvancedCamera> getAdvancedCameraModules() {
+        return advancedCameraModules;
+    }
+
     public List<Thread> getAllThreadsWithModules() {
         return threads;
     }
@@ -91,21 +100,31 @@ public class ModulesManager {
         for(Class c: loadedClasses){
             try {
                 Object o = c.newInstance();
+                objectIsLoaded = false;
 
                 if(o instanceof ShootTrigger){
                     initShootTrigger((ShootTrigger) o);
+                    objectIsLoaded = true;
                 }
                 if (o instanceof SimpleCamera){
                     initSimpleCamera((SimpleCamera) o);
+                    objectIsLoaded = true;
                 }
                 if (o instanceof ImageHandler){
                     initImageHandler((ImageHandler) o);
+                    objectIsLoaded = true;
                 }
                 if (o instanceof SceneController){
                     initSceneController((SceneController) o);
+                    objectIsLoaded = true;
                 }
                 if (o instanceof ImageFilter){
                     initImageFilter((ImageFilter) o);
+                    objectIsLoaded = true;
+                }
+                if (o instanceof AdvancedCamera){
+                    initAdvancedCamera((AdvancedCamera)o);
+                    objectIsLoaded = true;
                 }
             } catch (InstantiationException e) {
                 e.printStackTrace();
@@ -115,60 +134,74 @@ public class ModulesManager {
         }
     }
 
+    private void initAdvancedCamera(AdvancedCamera camera) {
+        camera.setProvider(providers.getCameraProvider());
+        advancedCameraModules.add(camera);
+        if(!objectIsLoaded){
+            Thread thread = new Thread(camera);
+            threads.add(thread);
+            thread.start();
+        }
+    }
+
     private void initImageFilter(ImageFilter imageFilter) {
         imageFilter.setProvider(providers.getImageFilterProvider());
         this.filterModules.add(imageFilter);
-        Thread thread = new Thread(imageFilter);
-        threads.add(thread);
-        thread.start();
+        if(!objectIsLoaded) {
+            Thread thread = new Thread(imageFilter);
+            threads.add(thread);
+            thread.start();
+        }
     }
 
     private void initSceneController(SceneController sceneController) {
         sceneController.setProvider(providers.getSceneProvider());
         this.sceneModules.add(sceneController);
-        Thread thread = new Thread(sceneController);
-        threads.add(thread);
-        thread.start();
+        if(!objectIsLoaded) {
+            Thread thread = new Thread(sceneController);
+            threads.add(thread);
+            thread.start();
+        }
     }
 
     private void initImageHandler(ImageHandler imageHandler) {
         imageHandler.setProvider(providers.getImageHandlerProvider());
         this.imageHandlerModules.add(imageHandler);
-        Thread thread = new Thread(imageHandler);
-        threads.add(thread);
-        thread.start();
+        if(!objectIsLoaded) {
+            Thread thread = new Thread(imageHandler);
+            threads.add(thread);
+            thread.start();
+        }
     }
 
     private void initSimpleCamera(SimpleCamera camera){
         camera.setProvider(providers.getCameraProvider());
         this.simpleCameraModules.add(camera);
-        Thread thread =new Thread(camera);
-        threads.add(thread);
-        thread.start();
+        if(!objectIsLoaded) {
+            Thread thread = new Thread(camera);
+            threads.add(thread);
+            thread.start();
+        }
     }
 
     private void initShootTrigger(ShootTrigger trigger){
         trigger.setProvider(providers.getTriggerProvider());
         this.shootTriggerModules.add(trigger);
-        Thread thread = new Thread(trigger);
-        threads.add(thread);
-        thread.start();
+        if(!objectIsLoaded) {
+            Thread thread = new Thread(trigger);
+            threads.add(thread);
+            thread.start();
+        }
     }
 
     public List<ShotBoxExternalModule> getAllModules(){
-        if(modules.size() != (
-                shootTriggerModules.size()
-                + imageHandlerModules.size()
-                + sceneModules.size()
-                + filterModules.size()
-                + simpleCameraModules.size()
-        )) {
-            modules.clear();
+        if(modules.size() == 0) {
             modules.addAll(shootTriggerModules);
             modules.addAll(imageHandlerModules);
             modules.addAll(sceneModules);
             modules.addAll(filterModules);
             modules.addAll(simpleCameraModules);
+            modules.addAll(advancedCameraModules);
         }
 
         return modules;

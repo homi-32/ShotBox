@@ -19,9 +19,38 @@ public class GoProRemoteTool implements SimpleCamera {
     private GoProService service = null;
 
     public GoProRemoteTool(){
-        logger.info("GOPRO module initialized");
+        logger.info("GOPRO module initialized. First testing shot being executed.");
+
         //TODO create and call method "isGoproConnectedToWifi()"
+
+        executeInitializeCheck();
     }
+
+    private void executeInitializeCheck() {
+        new Thread(){
+            @Override
+            public void run() {
+                logger.info("Initial check. One testing photo will be taken");
+
+                long timestamp = System.currentTimeMillis() + 15500l;
+
+                while(timestamp > System.currentTimeMillis()){
+                    if(provider != null){
+                        takeShoot();
+                        return;
+                    }
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                throw new SNEM_SimpleCamera_GoPro_Exception("Initial setup check fails. " +
+                        "Module will probably not working");
+            }
+        }.start();
+    }
+
     @Override
     public void setProvider(CameraPlatformProvider provider) {
         this.provider = provider;

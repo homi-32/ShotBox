@@ -215,13 +215,13 @@ class FilesCrawler {
         for (File fileEntry: folder.listFiles()){
             //String prefix = folder.getAbsolutePath() + File.separator ; //"." + File.separator;
 
-            logger.info("Analyzing '" +fileEntry +"' file.");
+            logger.debug("Analyzing '" +fileEntry +"' file.");
             if(fileEntry.isDirectory()){
                 //crawlingDirectory(folder).forEach(x -> {fileNames.add(prefix +fileEntry.getName() +File.separator +x);});
-                logger.info("File is a directory. Directory is being crawled.");
+                logger.debug("File is a directory. Directory is being crawled.");
                 crawlingDirectory(fileEntry).forEach(x -> fileNames.add(x));
             }else {
-                logger.info("File's path is added to list.");
+                logger.debug("File's path is added to list.");
                 fileNames.add(fileEntry.getAbsolutePath());
             }
         }

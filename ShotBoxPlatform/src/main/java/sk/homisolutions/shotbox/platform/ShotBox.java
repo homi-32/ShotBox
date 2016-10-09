@@ -20,12 +20,21 @@ public class ShotBox {
         ShotBox shotbox = new ShotBox();
         INSTANCE = shotbox;
 
+        shotbox.setupOsEnviroment();
         shotbox.initializeProviders();
         shotbox.initializeExternalModules();
 
         shotbox.checkNecessaryParts();
 
         shotbox.startApplication();
+    }
+
+    private void setupOsEnviroment() {
+        //TODO: check, if this is called from SUDO ??
+        //TODO: redirect all errors and standard output to log4j
+        //TODO: check, if all directories are created
+        //TODO: check, if all necessary configuration files are created and set
+        //TODO: if needed, check all PATH variables
     }
 
     private void checkNecessaryParts() {

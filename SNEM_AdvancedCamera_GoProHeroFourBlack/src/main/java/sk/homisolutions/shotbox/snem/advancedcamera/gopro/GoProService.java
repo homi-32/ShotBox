@@ -1,4 +1,4 @@
-package sk.homisolutions.shotbox.snem.simplecamera.gopro;
+package sk.homisolutions.shotbox.snem.advancedcamera.gopro;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
@@ -40,51 +40,24 @@ public class GoProService {
     private SimpleCamera camera;
     private Client client;
 
+    private boolean goproIsInitialized;
+
     public GoProService(CameraPlatformProvider provider, SimpleCamera camera) {
         this.provider = provider;
         this.camera = camera;
         this.client = ClientBuilder.newClient();
-        initialSetup();
+        this.goproIsInitialized = false;
+
+        try {
+            GoProSetupHelper.getInstance().initializeSetup();
+            goproIsInitialized = true;
+        }catch (Exception e){
+            logger.error("GoPro was not initialized");
+            e.printStackTrace();
+        }
     }
 
-    private void initialSetup(){
-        WebTarget target;
-        Response response;
 
-        logger.info("Initial module setup");
-
-        //turning on quick capture feature
-        logger.info("Setting quick capture feature");
-        target = client.target(Constants.QUICK_CAPTURE_ON);
-        response  = target.request().get();
-        checkResponseStatus(response);
-
-        //turning on gyro-based photo orientation
-        logger.info("Setting gyro-based orientation");
-        target = client.target(Constants.GYRO_BASED_ORIENTATION);
-        response  = target.request().get();
-        checkResponseStatus(response);
-
-        //turning on white balance feature
-        logger.info("enabling native white balance");
-        target = client.target(Constants.SET_NATIVE_WHITE_BALANCE_FOR_PHOTO);
-        response  = target.request().get();
-        checkResponseStatus(response);
-
-        //turn on gopro color protune feature
-        logger.info("enabling gopro color coloration");
-        target = client.target(Constants.SET_COLOR_TO_GOPRO_FOR_PHOTO);
-        response  = target.request().get();
-        checkResponseStatus(response);
-
-        //setting gopro resolution
-        logger.info("setting medium photo resolution");
-        target = client.target(Constants.SET_PHOTO_RESOLUTION_TO_MEDIUM_7MP);
-        response  = target.request().get();
-        checkResponseStatus(response);
-
-        setPhotoModeOnGoPro();
-    }
 
     public void takePhotoViaGoPro(TakenPicture pic){
         logger.info("Taking picture started");
@@ -97,20 +70,18 @@ public class GoProService {
             picture = pic;
         }
 
-        setPhotoModeOnGoPro();
+        if(!goproIsInitialized){
+            GoProSetupHelper.getInstance().initializeSetup();
+        }
+
+        //TODO consiter, if this should be called befor every taking of shot
+//        GoProSetupHelper.getInstance().setPhotoModeOnGoPro();
         setupGoproBeforeTakingPicture();
         takePicture();
         provider.notifyPictureIsTaken(camera);
         processTakenPicture(picture);
         provider.provideTakenPicture(picture, camera);
 
-    }
-
-    private void setPhotoModeOnGoPro() {
-        logger.info("setting photo mode for gopro");
-        WebTarget target = client.target(Constants.TURN_ON_PHOTO);
-        Response response = target.request().get();
-        checkResponseStatus(response);
     }
 
     private void setupGoproBeforeTakingPicture() {
@@ -122,7 +93,7 @@ public class GoProService {
         logger.info("taking picture");
         WebTarget target = client.target(Constants.TRIGGER_PHOTO);
         Response response = target.request().get();
-        checkResponseStatus(response);
+        GoProConnectionHelper.getInstance().checkResponseStatus(response);
     }
 
     private void processTakenPicture(TakenPicture picture) {
@@ -154,7 +125,7 @@ public class GoProService {
             if it occurs 50 times in a row, it is not OK and something is wrong
              */
             try {
-                responseStatus = checkResponseStatus(response);
+                responseStatus = GoProConnectionHelper.getInstance().checkResponseStatus(response);
             }catch (SNEM_SimpleCamera_GoPro_Exception e){
                 if(counter > 50){
                     throw e;
@@ -208,20 +179,7 @@ public class GoProService {
         return serializedObject;
     }
 
-    private boolean checkResponseStatus(Response response) {
-        logger.info("check response");
-        if(response.getStatus() >= 200 && response.getStatus() < 300 /*!= Response.Status.OK.getStatusCode()*/) {
-            logger.info("OK");
-            return true;
-        }else{
-            logger.error("NOT OK");
-            logger.error("Response code is not 200, but: " + response.getStatus());
-            throw new SNEM_SimpleCamera_GoPro_Exception("Response code is not 200, but: " + response.getStatus());
-//            return false;
-        }
-    }
-
-    private void sleepThread() {
+        private void sleepThread() {
         try {
             Thread.sleep(250);
         } catch (InterruptedException e1) {

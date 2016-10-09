@@ -1,4 +1,4 @@
-package sk.homisolutions.shotbox.snem.simplecamera.gopro;
+package sk.homisolutions.shotbox.snem.advancedcamera.gopro;
 
 /**
  * Created by homi on 8/23/16.
@@ -7,6 +7,7 @@ public class Constants {
 
     public static final String GOPRO_HERO4_IP="10.5.5.9";
     public static final String GOPRO_HERO4_SUBNETMASK="255.255.255.0";
+    public static final String GOPRO_HERO4_MAC="D6:D9:19:9A:8C:10";
     public static final Integer GOPRO_HERO4_PORT_FOR_WoL=9;
 
     //pairing process
@@ -53,6 +54,13 @@ public class Constants {
     public static final String QUICK_CAPTURE_ON="http://10.5.5.9/gp/gpControl/setting/54/1";
     public static final String LED_BLINK_4TIMES="http://10.5.5.9/gp/gpControl/setting/55/2";
 
+    //video streaming
+    public static final String ENABLE_VIDEO_STREAM="http://10.5.5.9/gp/gpControl/execute?p1=gpStream&c1=restart";
+    public static final String DISABLE_VIDEO_STREAM="http://10.5.5.9:8080/gp/gpControl/execute?p1=gpStream&c1=stop";
+    public static final String SET_VIDEO_STREAM_BITRATE_TO_2point4Mbps = "http://10.5.5.9/gp/gpControl/setting/59/2400000";
+    public static final String SET_VIDEO_STREAM_WINDOWS_SIZE_TO_480_3to4 = "http://10.5.5.9/gp/gpControl/setting/64/5";
+    public static final String VIDEO_STREAM_CONNECTION_URL_WITH_PORT = "10.5.5.9:8554";
+    public static final String VIDEO_STREAM_CONNECTION_PROTOCOL = "rtp";
 
     //delete file: http://10.5.5.9/gp/gpControl/command/storage/delete?p=file (eg. /100GOPRO/G0010124.JPG)
     //Delete Last media taken: http://10.5.5.9/gp/gpControl/command/storage/delete/last

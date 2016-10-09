@@ -7,4 +7,5 @@ import sk.homisolutions.shotbox.tools.models.ShotBoxConnection;
  */
 public interface AdvancedCamera extends SimpleCamera {
     ShotBoxConnection provideVideoStreamConnection();
+    void closeVideoStream();
 }

@@ -1,8 +1,9 @@
-package sk.homisolutions.shotbox.snem.simplecamera.gopro;
+package sk.homisolutions.shotbox.snem.advancedcamera.gopro;
 
 import org.apache.log4j.Logger;
-import sk.homisolutions.shotbox.tools.api.external.camera.SimpleCamera;
+import sk.homisolutions.shotbox.tools.api.external.camera.AdvancedCamera;
 import sk.homisolutions.shotbox.tools.api.internal.camera.CameraPlatformProvider;
+import sk.homisolutions.shotbox.tools.models.ShotBoxConnection;
 import sk.homisolutions.shotbox.tools.models.ShotBoxMessage;
 import sk.homisolutions.shotbox.tools.models.TakenPicture;
 
@@ -12,11 +13,13 @@ import sk.homisolutions.shotbox.tools.models.TakenPicture;
  */
 //Thanks to KonradIT for this repo: https://github.com/KonradIT/goprowifihack
 //without it this module could not be built
-public class GoProRemoteTool implements SimpleCamera {
+public class GoProRemoteTool implements AdvancedCamera {
     private static final Logger logger = Logger.getLogger(GoProRemoteTool.class);
 
     private CameraPlatformProvider provider = null;
     private GoProService service = null;
+
+    private boolean streamingVideo = false;
 
     public GoProRemoteTool(){
         logger.info("GOPRO module initialized. First testing shot being executed.");
@@ -80,5 +83,39 @@ public class GoProRemoteTool implements SimpleCamera {
     @Override
     public void receiveGlobalMessage(ShotBoxMessage message) {
 
+    }
+
+    @Override
+    public ShotBoxConnection provideVideoStreamConnection() {
+        logger.info("Opening video stream");
+        ShotBoxConnection connection = new ShotBoxConnection();
+        streamingVideo = true;
+        GoProSetupHelper.getInstance().setupVideoStreaming();
+        new Thread(){
+            @Override
+            public void run() {
+                while (streamingVideo){
+                    GoProSetupHelper.getInstance().enableVideoStreaming();
+                    try {
+                        Thread.sleep(15000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                GoProSetupHelper.getInstance().disableVideoStreaming();
+            }
+        }.start();
+
+
+        connection.setAddress(Constants.VIDEO_STREAM_CONNECTION_URL_WITH_PORT);
+        connection.setProtocol(Constants.VIDEO_STREAM_CONNECTION_PROTOCOL);
+        connection.setModule(this);
+        return connection;
+    }
+
+    @Override
+    public void closeVideoStream() {
+        logger.info("Closing video stream");
+        streamingVideo = false;
     }
 }

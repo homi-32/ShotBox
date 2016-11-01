@@ -1,7 +1,7 @@
 {
   "name": "GoPro Hero 4 Black/Silver Camera Module",
   "implementation_packages": [
-    "sk.homisolutions.shotbox.snem.advancedcamera.gopro.GoProRemoteTool"
+    "sk.homisolutions.shotbox.snem.simplecamera.gopro.GoProRemoteTool"
   ],
   "settings_packages:" : [
     ""

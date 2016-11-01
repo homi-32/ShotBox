@@ -1,7 +1,7 @@
-package sk.homisolutions.shotbox.snem.advancedcamera.gopro.multithread_solution_delete_it_later;
+package sk.homisolutions.shotbox.snem.simplecamera.gopro.multithread_solution_delete_it_later;
 
 import org.apache.log4j.Logger;
-import sk.homisolutions.shotbox.snem.advancedcamera.gopro.Constants;
+import sk.homisolutions.shotbox.snem.simplecamera.gopro.Constants;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;

@@ -1,4 +1,4 @@
-package sk.homisolutions.shotbox.snem.advancedcamera.gopro.multithread_solution_delete_it_later;
+package sk.homisolutions.shotbox.snem.simplecamera.gopro.multithread_solution_delete_it_later;
 
 import org.apache.log4j.Logger;
 import sk.homisolutions.shotbox.tools.api.external.camera.SimpleCamera;

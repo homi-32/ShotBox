@@ -1,4 +1,4 @@
-package sk.homisolutions.shotbox.snem.advancedcamera.gopro;
+package sk.homisolutions.shotbox.snem.simplecamera.gopro;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;

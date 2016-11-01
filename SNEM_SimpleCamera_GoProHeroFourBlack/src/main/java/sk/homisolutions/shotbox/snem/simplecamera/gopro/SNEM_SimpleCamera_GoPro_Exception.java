@@ -1,4 +1,4 @@
-package sk.homisolutions.shotbox.snem.advancedcamera.gopro;
+package sk.homisolutions.shotbox.snem.simplecamera.gopro;
 
 /**
  * Created by homi on 8/29/16.

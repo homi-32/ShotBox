@@ -1,4 +1,4 @@
-package sk.homisolutions.shotbox.snem.advancedcamera.gopro.multithread_solution_delete_it_later;
+package sk.homisolutions.shotbox.snem.simplecamera.gopro.multithread_solution_delete_it_later;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
@@ -14,8 +14,8 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.log4j.Logger;
-import sk.homisolutions.shotbox.snem.advancedcamera.gopro.Constants;
-import sk.homisolutions.shotbox.snem.advancedcamera.gopro.SNEM_SimpleCamera_GoPro_Exception;
+import sk.homisolutions.shotbox.snem.simplecamera.gopro.Constants;
+import sk.homisolutions.shotbox.snem.simplecamera.gopro.SNEM_SimpleCamera_GoPro_Exception;
 import sk.homisolutions.shotbox.tools.api.internal.camera.CameraPlatformProvider;
 import sk.homisolutions.shotbox.tools.models.MimeTypes;
 import sk.homisolutions.shotbox.tools.models.TakenPicture;

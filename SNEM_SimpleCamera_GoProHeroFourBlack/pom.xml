@@ -47,7 +47,7 @@
         <version>0.1.0-Developing</version>
     </parent>
 
-    <artifactId>SNEM_AdvancedCamera_GoProHeroFourBlack</artifactId>
+    <artifactId>SNEM_SimpleCamera_GoProHeroFourBlack</artifactId>
     <packaging>jar</packaging>
 
     <build>

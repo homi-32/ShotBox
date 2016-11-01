@@ -5,6 +5,8 @@ package sk.homisolutions.shotbox.tools.models;
  */
 public enum ShotBoxModulesEnum {
     ALL_OR_NOT_SPECIFIED,
+    GUI_INTERFACE,
+    ADVANCED_CAMERA,
     IMAGE_FILER,
     IMAGE_HANDLER,
     SCENE_CONTROLLER,

@@ -152,7 +152,7 @@ public class WorkflowManager {
                 }
             }.start();
         }
-        shotCanBeTaken = true;
+//        shotCanBeTaken = true;
     }
 
     //control, if every controller is setup. if yes, shot can be taken
@@ -188,16 +188,23 @@ public class WorkflowManager {
     private void triggerCameraModules() {
         shotCanBeTaken = true;
         allowToProvidePicture = true;
+
+        List<Thread> threads = new LinkedList<>();
+
         for(SimpleCamera camera: ModulesManager.getInstance().getSimpleCameraModules()){
             doesCameraAlreadyTookPicture.put(camera, false);
             doesCameraAlreadyProvidekPicture.put(camera, false);
-            new Thread(){
+            Thread t = new Thread(){
                 @Override
                 public void run() {
                     camera.takeShoot();
                 }
-            }.start();
+            };
+            threads.add(t);
         }
+
+
+        threads.forEach(Thread::start);
         sceneCanBeTurnedOff = true;
     }
 
@@ -216,7 +223,7 @@ public class WorkflowManager {
             if (doesCameraAlreadyTookPicture.size() == ModulesManager.getInstance().getSimpleCameraModules().size()) {
                 for (Map.Entry<SimpleCamera, Boolean> entry : doesCameraAlreadyTookPicture.entrySet()) {
                     //if any camera did not take picture yet, process can not continue
-                    if (entry.getValue() == false) {
+                    if (!entry.getValue()) {
                         return;
                     }
                 }
@@ -310,7 +317,7 @@ public class WorkflowManager {
 
     private void checkIfAllCamerasProvidedPhoto() {
         for(Map.Entry<SimpleCamera, Boolean> entry: doesCameraAlreadyProvidekPicture.entrySet()){
-            if(entry.getValue() == false){
+            if(!entry.getValue()){
                 return;
             }
         }
@@ -344,7 +351,7 @@ public class WorkflowManager {
             if(allCamerasProvidedPhotos){
                 //check if all photos are handled
                 for (Map.Entry<TakenPicture, Boolean> entry: isPictureFromCameraAlreadyHandled.entrySet()){
-                    if(entry.getValue() == false)
+                    if(!entry.getValue())
                         return;
                 }
                 logger.fatal("workflow ends timestamp: " +System.currentTimeMillis());

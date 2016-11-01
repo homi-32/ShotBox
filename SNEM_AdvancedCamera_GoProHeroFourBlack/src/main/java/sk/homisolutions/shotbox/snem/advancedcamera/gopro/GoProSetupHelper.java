@@ -53,10 +53,10 @@ public class GoProSetupHelper {
             connection.checkResponseStatus(response);
 
             //turn on gopro color protune feature
-            logger.info("enabling gopro color coloration");
-            target = client.target(Constants.SET_COLOR_TO_GOPRO_FOR_PHOTO);
-            response = target.request().get();
-            connection.checkResponseStatus(response);
+//            logger.info("enabling gopro color coloration");
+//            target = client.target(Constants.SET_COLOR_TO_GOPRO_FOR_PHOTO);
+//            response = target.request().get();
+//            connection.checkResponseStatus(response);
 
             //setting gopro resolution
             logger.info("setting medium photo resolution");

@@ -32,6 +32,9 @@
         <!-- Implementation of Simple Camera module for GoPro camera (ProxyModule) -->
         <module>SNEM_SimpleCamera_GoProHeroFourBlack</module>
 
+        <!-- Implementation of Simple Camera module for basic web camera -->
+        <module>SNEM_SimpleCamera_WebCamera</module>
+
         <!-- Implementation of Shooting trigger module for Keyboard -->
         <module>SNEM_ShootTrigger_Keyboard</module>
 
@@ -43,6 +46,10 @@
         <!-- Implementation of Image processor module for storing photos on Filesystem.
         This module is temporary and will removed lately with implementation-->
         <module>SNEM_ImageHandler_StoringPhotoOnFilesystem</module>
+
+        <!-- Implementation of Graphical User Interface for showing photos and triggering shots-->
+        <module>SNEM_GUI_BasicWebImplementation</module>
+
     </modules>
 
     <properties>

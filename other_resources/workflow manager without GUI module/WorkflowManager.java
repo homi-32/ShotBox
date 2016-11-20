@@ -7,7 +7,6 @@ import sk.homisolutions.shotbox.tools.api.external.imageprocessing.ImageFilter;
 import sk.homisolutions.shotbox.tools.api.external.imageprocessing.ImageHandler;
 import sk.homisolutions.shotbox.tools.api.external.scene.SceneController;
 import sk.homisolutions.shotbox.tools.api.external.trigger.ShootTrigger;
-import sk.homisolutions.shotbox.tools.api.external.userinterface.GraphicalInterface;
 import sk.homisolutions.shotbox.tools.models.TakenPicture;
 
 import java.util.*;
@@ -15,12 +14,7 @@ import java.util.*;
 /**
  * Created by homi on 10/7/16.
  */
-//TODO: Divide WorkflowManager to: Workflow with gui and Workflow without gui
 public class WorkflowManager {
-
-    //TODO: this values should be loaded from config file
-    /** System Setup **/
-    private Long countdownTimeInSeconds = 5l;
 
     /** Self managements **/
     private static final Logger logger = Logger.getLogger(WorkflowManager.class);
@@ -34,22 +28,17 @@ public class WorkflowManager {
     private boolean safetyCatchInUse;
 
     private boolean lockedTriggers;
-    private boolean countdownIsSet;
-    private boolean countdownIsOver;
     private boolean sceneSetupProcessIsEnabled;
     private boolean shotCanBeTaken;
     private boolean sceneCanBeTurnedOff;
     private boolean allowToProvidePicture;
-    private boolean userCanSendPhotoDecision;
     private boolean allowToHandlingPictures;
 
-//    private Map<SceneController, Boolean> isSceneTurnedOn;
+    //    private Map<SceneController, Boolean> isSceneTurnedOn;
     private Integer setScenes;
 
     private Map<SimpleCamera, Boolean> doesCameraAlreadyTookPicture;
     private Map<SimpleCamera, Boolean> doesCameraAlreadyProvidekPicture;
-    private List<TakenPicture> photosSentToGui;
-    private Map<TakenPicture, Boolean> whatDecisionDidUserMadeForPhoto;
     private Map<TakenPicture, Boolean> isPictureFromCameraAlreadyHandled;
 
     private Boolean allCamerasProvidedPhotos;
@@ -72,7 +61,7 @@ public class WorkflowManager {
             @Override
             public void run() {
                 safetyCatchInUse = true;
-                long executionTime = System.currentTimeMillis() + Constants.SAFETY_CATCH_TIMEOUT_MILLIS + countdownTimeInSeconds;
+                long executionTime = System.currentTimeMillis() + Constants.SAFETY_CATCH_TIMEOUT_MILLIS;
 
                 while (safetyCatchInUse && workflowState){
                     if(executionTime < System.currentTimeMillis()){
@@ -90,20 +79,17 @@ public class WorkflowManager {
     }
 
     private void safetyCatchHandler(){
-        logger.info("safety catch executing");
+        logger.fatal("safety catch executing");
     }
-    public void resetWorkflow(){
-        logger.info("Workflow is recovering");
+    private void resetWorkflow(){
+        logger.fatal("called reset");
         safetyCatchInUse = false;
 
         lockedTriggers = false;
-        countdownIsSet = false;
-        countdownIsOver = true;
         sceneSetupProcessIsEnabled = false;
         shotCanBeTaken = false;
         sceneCanBeTurnedOff = false;
         allowToProvidePicture = false;
-        userCanSendPhotoDecision = false;
         allowToHandlingPictures = false;
 
         setScenes = 0;
@@ -111,31 +97,8 @@ public class WorkflowManager {
         doesCameraAlreadyTookPicture = new HashMap<>();
         doesCameraAlreadyProvidekPicture = new HashMap<>();
         isPictureFromCameraAlreadyHandled = new HashMap<>();
-        photosSentToGui = new LinkedList<>();
-        whatDecisionDidUserMadeForPhoto = new HashMap<>();
 
         allCamerasProvidedPhotos = false;
-
-        propagatePlatformIsReady();
-        logger.info("Workflow is recovered");
-    }
-
-    //TODO: implement propagating for every module
-    private void propagatePlatformIsReady() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //inform GUI modules
-                for(GraphicalInterface gui: ModulesManager.getInstance().getGuiModules()){
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            gui.platformIsReady();
-                        }
-                    }).start();
-                }
-            }
-        }).start();
     }
 
 
@@ -158,36 +121,14 @@ public class WorkflowManager {
 
     /** Standard Workflow starts here **/
 
-    /*
-    if gui and scene controller are not available:
-    - shot is triggered
-
-    if gui is available, but scene modules not:
-    - countdown is set
-    - countdown starts triggering
-
-    if gui is not available, but scene module is
-    - scene setup started
-    - after that, shot is triggered
-
-    if gui and scene modules is available
-    - countdown starts
-    - parallel: scene is set
-     */
     public void shotWasTriggered(ShootTrigger trigger){
         if(!lockedTriggers) {
-//            logger.fatal("Triggered shot timestamp: " +System.currentTimeMillis());
+            logger.fatal("Triggered shot timestamp: " +System.currentTimeMillis());
             lockAllTriggers();
-            if(ModulesManager.getInstance().isAnyGraphicalInterfaceAvailable()) {
-                setCountdown();
-                propagateCountdown();
-            }
             if(ModulesManager.getInstance().isAnySceneControllerAvailable()) {
                 prepareDevicesToTakingShot();
             }else{
-                if(!ModulesManager.getInstance().isAnyGraphicalInterfaceAvailable()){
-                    triggerCameraModules();
-                }
+                triggerCameraModules();
             }
         }else {
             logger.error("Denial access recorded");
@@ -199,75 +140,44 @@ public class WorkflowManager {
         setSafetyCatch();
     }
 
-    private void setCountdown() {
-        countdownIsSet = true;
-        CountdownManager.getInstance().setupCountdown(5l);
-        countdownIsOver = false;
-    }
-
-    //TODO: implement propagating for every module
-    private void propagateCountdown() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //inform GUI modules
-                for(GraphicalInterface gui: ModulesManager.getInstance().getGuiModules()){
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            gui.countdownStarts();
-                        }
-                    }).start();
-                }
-            }
-        }).start();
-    }
-
-    public void countdownIsOver(){
-        if(countdownIsSet){
-            countdownIsOver = true;
-            logger.info("Countdown is over.");
-            if(ModulesManager.getInstance().isAnySceneControllerAvailable()){
-                devicesArePreparedToTakingShot(null);
-            }else {
-                triggerCameraModules();
-            }
-        }else {
-            logger.fatal("ShotBox Countdown System violate the workflow process. Something very bad happens.");
-        }
-    }
-
     //order every scene controller to setup and register it
     private void prepareDevicesToTakingShot() {
         sceneSetupProcessIsEnabled = true;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for(SceneController sceneController: ModulesManager.getInstance().getSceneModules()){
-                    new Thread(){
-                        @Override
-                        public void run() {
-                            sceneController.setupScene();
-                        }
-                    }.start();
+        for(SceneController sceneController: ModulesManager.getInstance().getSceneModules()){
+//            isSceneTurnedOn.put(sceneController, false);
+            new Thread(){
+                @Override
+                public void run() {
+                    sceneController.setupScene();
                 }
-            }
-        }).start();
+            }.start();
+        }
 //        shotCanBeTaken = true;
     }
 
     //control, if every controller is setup. if yes, shot can be taken
     public void devicesArePreparedToTakingShot(SceneController controller){
         if(sceneSetupProcessIsEnabled) {
+            //TODO: this for can be removed (not that one uncomment line!!!), due to performance issue, is is jush more recure check, is all scenes controller are setup
+            //register, that scene is already setup
+//        for(Map.Entry<SceneController, Boolean> entry : isSceneTurnedOn.entrySet()){
+//            if(entry.getKey() == controller){
+//                entry.setValue(true);
+            setScenes += 1;
+//                break;
+//            }
+//        }
 
-            //countdown can call this method too, but with null argument
-            if(controller != null){
-                setScenes += 1;
-            }
 
-            //if GUI does not exists, variable countdownIsOver is always true
-            if (setScenes == ModulesManager.getInstance().getSceneModules().size() && countdownIsOver) {
-                logger.info("All scenes with countdown are prepared to taking shot.");
+            if (setScenes == ModulesManager.getInstance().getSceneModules().size()) {
+                //TODO: due to performance issue, this for could be removed in future (it is just sme check, which is maybe not necessary)
+                //check, if every scene is setup
+//            for (Map.Entry<SceneController, Boolean> entry : isSceneTurnedOn.entrySet()) {
+//            //if just one controller is not setup, no picture can be taken
+//                if (entry.getValue() == false){
+//                    return;
+//                }
+//            }
                 triggerCameraModules();
             }
         }else {
@@ -293,12 +203,14 @@ public class WorkflowManager {
             threads.add(t);
         }
 
+
         threads.forEach(Thread::start);
         sceneCanBeTurnedOff = true;
     }
 
     public void shotIsTaken(SimpleCamera camera){
         if(shotCanBeTaken) {
+            //TODO: Here can be generating some event
             //register, that camera already took picture
             for (Map.Entry<SimpleCamera, Boolean> entry : doesCameraAlreadyTookPicture.entrySet()) {
                 if (entry.getKey() == camera) {
@@ -315,81 +227,38 @@ public class WorkflowManager {
                         return;
                     }
                 }
-
-                //if every camera took picture, GUIs are notified
-                notifyGuiThatShotIsAlreadyTaken();
-
-                //scenes can be released
                 if (ModulesManager.getInstance().isAnySceneControllerAvailable()) {
                     releaseDeviceAfterTakingShot();
                 }
             }
 
-//            logger.fatal("shot taken timestamp: " +System.currentTimeMillis());
+            logger.fatal("shot taken timestamp: " +System.currentTimeMillis());
         }else {
             logger.error("Denial access recorded");
         }
     }
 
-    //TODO: implement for all modules??
-    private void notifyGuiThatShotIsAlreadyTaken() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for(GraphicalInterface gui: ModulesManager.getInstance().getGuiModules()){
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            gui.allPicturesAreTaken();
-                        }
-                    }).start();
-                }
-            }
-        }).start();
-    }
-
     public void provideTakenPicture(TakenPicture picture, SimpleCamera camera){
         if(allowToProvidePicture) {
-            logger.info("Picture is provided: " +picture.getFilename());
-
             shotIsTaken(camera);
 
             cameraAlreadyProvidedPicture(camera);
 
-            /*
-            if gui and filters are not available:
-             - photo is propagated
-
-             if gui is available, but filters are not
-             - photo is showed to user, if photo can be propagated
-
-             if filters are available
-             - if filters are available, there is no matter, is gui is available,
-               because photo has to be filtered first
-             */
             if (ModulesManager.getInstance().isAnyImageFilterAvailable()) {
-                //no matter if gui is available, photo must be filtered first
                 applyPhotoFilters(picture);
             } else {
-                //filters are not available
-                if(ModulesManager.getInstance().isAnyGraphicalInterfaceAvailable()){
-                    //gui is available, but filters not: photo is showed to user
-                    userCanSendPhotoDecision = true;
-                    showPictureToUserAndWaitForUserDecision(picture);
-                }else {
-                    //gui is not available, nor filters: photo is automatically propagated
-                    List<TakenPicture> pictures = new ArrayList<>();
-                    pictures.add(picture);
-                    new Thread() {
-                        @Override
-                        public void run() {
-                            propagatePhoto(pictures);
-                        }
-                    }.start();
-                }
+                //TODO: Should be there way to propagate raw photo, without filters?
+                List<TakenPicture> pictures = new ArrayList<>();
+                pictures.add(picture);
+                new Thread() {
+                    @Override
+                    public void run() {
+                        propagatePhoto(pictures);
+                    }
+                }.start();
             }
 
-//            logger.fatal("picture provided timestamp: " +System.currentTimeMillis());
+            logger.fatal("picture provided timestamp: " +System.currentTimeMillis());
         }else {
             logger.error("Denial access recorded");
         }
@@ -404,6 +273,7 @@ public class WorkflowManager {
         }
     }
 
+    //TODO: start in own thread
     private void releaseDeviceAfterTakingShot() {
         if(sceneCanBeTurnedOff){
             new Thread(){
@@ -434,12 +304,7 @@ public class WorkflowManager {
                 for(ImageFilter filter: ModulesManager.getInstance().getImageFilterModules()){
                     pictures = filter.applyFilter(pictures);
                 }
-                if(ModulesManager.getInstance().isAnyGraphicalInterfaceAvailable()){
-                    userCanSendPhotoDecision = true;
-                    showPicturesToUserAndWaitForUserDecision(pictures);
-                }else {
-                    propagatePhoto(pictures);
-                }
+                propagatePhoto(pictures);
             }
         }.start();
     }
@@ -457,68 +322,6 @@ public class WorkflowManager {
             }
         }
         allCamerasProvidedPhotos = true;
-    }
-
-    private void showPicturesToUserAndWaitForUserDecision(List<TakenPicture> pictures){
-        synchronized (WorkflowManager.class) {
-            for (TakenPicture p : pictures) {
-                showPictureToUserAndWaitForUserDecision(p);
-            }
-        }
-    }
-
-    private void showPictureToUserAndWaitForUserDecision(TakenPicture picture) {
-        photosSentToGui.add(picture);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (GraphicalInterface gui: ModulesManager.getInstance().getGuiModules()){
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            gui.showPicture(picture);
-                        }
-                    }).start();
-                }
-            }
-        }).start();
-    }
-
-    public void userChosePhotoToBePropagated(TakenPicture picture, boolean decision){
-        if(userCanSendPhotoDecision) {
-            logger.info("User made decision: " +decision +" for photo: " +picture.getFilename());
-            whatDecisionDidUserMadeForPhoto.put(picture, decision);
-
-            //when every photo is returned
-            if(photosSentToGui.size() == whatDecisionDidUserMadeForPhoto.size()) {
-                logger.info("all photos are returned from gui, may workflow end?");
-                if(checkIfWorkflowMayEnd()){
-                    logger.info("yes");
-                    resetWorkflow();
-                }else {
-                    logger.info("no");
-                    List<TakenPicture> pictureList = new LinkedList<>();
-                    for(Map.Entry<TakenPicture, Boolean> e: whatDecisionDidUserMadeForPhoto.entrySet()){
-                        if(e.getValue()){
-                            pictureList.add((e.getKey()));
-                        }
-                    }
-                    propagatePhoto(pictureList);
-                }
-            }
-        }else {
-            logger.error("Denial access recorded");
-        }
-    }
-
-    private boolean checkIfWorkflowMayEnd() {
-        //if all photos are not allowed by user, workflow may end
-        for(Map.Entry<TakenPicture, Boolean> e: whatDecisionDidUserMadeForPhoto.entrySet()){
-            if(e.getValue()){
-                return false;
-            }
-        }
-        return true;
     }
 
     private void propagatePhoto(List<TakenPicture> pictures){
@@ -543,19 +346,15 @@ public class WorkflowManager {
 
     public void photoIsHandled(TakenPicture picture, ImageHandler handler){
         if(allowToHandlingPictures){
-            logger.info("photo is handled: " +picture.getFilename());
             markPictureAsHandled(picture);
 
             if(allCamerasProvidedPhotos){
-                logger.info("check, if all photos are handled");
                 //check if all photos are handled
                 for (Map.Entry<TakenPicture, Boolean> entry: isPictureFromCameraAlreadyHandled.entrySet()){
-                    if(!entry.getValue()) {
-                        logger.info("one photo is not handled");
+                    if(!entry.getValue())
                         return;
-                    }
                 }
-//                logger.fatal("workflow ends timestamp: " +System.currentTimeMillis());
+                logger.fatal("workflow ends timestamp: " +System.currentTimeMillis());
                 resetWorkflow();
             }
         }else {

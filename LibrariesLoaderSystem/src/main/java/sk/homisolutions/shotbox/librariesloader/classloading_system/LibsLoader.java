@@ -318,7 +318,10 @@ public class LibsLoader implements LibrariesLoader {
         }
 
         logger.info("Classloader is going to be created.");
-        URLClassLoader loader = URLClassLoader.newInstance(urls);
+        //some info, how i should load classes:
+        // http://stackoverflow.com/questions/60764/how-should-i-load-jars-dynamically-at-runtime
+        // http://stackoverflow.com/questions/194698/how-to-load-a-jar-file-at-runtime
+        URLClassLoader loader = URLClassLoader.newInstance(urls, getClass().getClassLoader());
         if (loader == null) {
             logger.error("Classloader is null. Address was probably wrong. Method is returning null");
             return null;
@@ -326,6 +329,7 @@ public class LibsLoader implements LibrariesLoader {
         logger.info("Classloader created.");
 
         logger.info("Method ends.");
+
         return loader;
     }
 
@@ -380,7 +384,7 @@ public class LibsLoader implements LibrariesLoader {
                 logger.info("reading shotbox manifest from jar");
                 ShotboxManifest manifest = loadManifest(jar);
                 if(manifest == null) {
-                    logger.error("some error log");
+                    logger.error("Manifest for " +filePath +" could not be loaded.");
                     continue;
                 }
                 manifests.add(manifest);
@@ -516,7 +520,12 @@ public class LibsLoader implements LibrariesLoader {
 
         logger.debug("Loading class: '" +className +"'");
         try{
-            c = cl.loadClass(className);
+
+            //some info, how i should load classes:
+            //http://stackoverflow.com/questions/60764/how-should-i-load-jars-dynamically-at-runtime
+            //http://stackoverflow.com/questions/194698/how-to-load-a-jar-file-at-runtime
+//            c = cl.loadClass(className);
+            c = Class.forName(className, false, cl);
         }catch (Throwable e){
             logger.fatal("!!!! Class '"+className+"' could not be loaded");
             exceptionHandler.handle(e);

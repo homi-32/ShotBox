@@ -1,0 +1,19 @@
+{
+  "name": "Basic Web Camera Module",
+  "implementation_packages": [
+    "sk.homisolutions.shotbox.snem.simplecamera.webcamera"
+  ],
+  "settings_packages:" : [
+    ""
+  ],
+  "icon": "",
+
+  "author": "Homi",
+  "version": "1.0",
+  "description": "Module for remoting Web camera",
+  "contacts": [
+    "homisolutions@gmail.com"
+  ],
+  "update_url": "https://github.com/homi-32/ShotBox",
+  "version_name": ""
+}

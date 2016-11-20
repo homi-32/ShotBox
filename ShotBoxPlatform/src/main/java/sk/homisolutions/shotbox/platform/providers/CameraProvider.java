@@ -1,6 +1,7 @@
 package sk.homisolutions.shotbox.platform.providers;
 
 import org.apache.log4j.Logger;
+import sk.homisolutions.shotbox.platform.managers.CountdownManager;
 import sk.homisolutions.shotbox.platform.managers.ModulesManager;
 import sk.homisolutions.shotbox.platform.managers.WorkflowManager;
 import sk.homisolutions.shotbox.tools.api.external.camera.SimpleCamera;
@@ -51,5 +52,10 @@ public class CameraProvider implements CameraPlatformProvider{
         synchronized (CameraProvider.class){
             ModulesManager.getInstance().propagateMessage(message, module);
         }
+    }
+
+    @Override
+    public Long getMillisToTakingShot() {
+        return CountdownManager.getInstance().getMillisToTakingShot();
     }
 }

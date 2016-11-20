@@ -22,7 +22,6 @@
         <version>0.1.0-Developing</version>
     </parent>
 
-    <groupId>sk.homisolutions.shotbox</groupId>
     <artifactId>SNEM_ImageHandler_StoringPhotoOnFilesystem</artifactId>
     <packaging>jar</packaging>
 

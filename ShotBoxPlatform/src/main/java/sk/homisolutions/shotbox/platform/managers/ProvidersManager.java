@@ -2,11 +2,13 @@ package sk.homisolutions.shotbox.platform.managers;
 
 import sk.homisolutions.shotbox.platform.providers.*;
 import sk.homisolutions.shotbox.tools.api.internal.camera.CameraPlatformProvider;
+import sk.homisolutions.shotbox.tools.api.internal.countdown.CountdownPlatformProvider;
 import sk.homisolutions.shotbox.tools.api.internal.general.ShotBoxPlatformProvider;
 import sk.homisolutions.shotbox.tools.api.internal.imageprocessor.ImageFilterPlatformProvider;
 import sk.homisolutions.shotbox.tools.api.internal.imageprocessor.ImageHandlerPlatformProvider;
 import sk.homisolutions.shotbox.tools.api.internal.scene.ScenePlatformProvider;
 import sk.homisolutions.shotbox.tools.api.internal.trigger.TriggerPlatformProvider;
+import sk.homisolutions.shotbox.tools.api.internal.userinterface.GuiPlatformProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,8 @@ public class ProvidersManager {
     private ImageHandlerPlatformProvider imageHandlerProvider;
     private ScenePlatformProvider sceneProvider;
     private ImageFilterPlatformProvider imageFilterProvider;
+    private CountdownPlatformProvider countdownProvider;
+    private GuiPlatformProvider guiProvider;
 
     private ProvidersManager(){
         //singleton
@@ -40,6 +44,8 @@ public class ProvidersManager {
         imageHandlerProvider = new ImageHandlerProvider();
         sceneProvider = new SceneProvider();
         imageFilterProvider = new ImageFilterProvider();
+        countdownProvider = new CountdownProvider();
+        guiProvider = new GuiProvider();
 
         isInitialized = true;
     }
@@ -64,6 +70,14 @@ public class ProvidersManager {
         return imageFilterProvider;
     }
 
+    public CountdownPlatformProvider getCountdownProvider() {
+        return countdownProvider;
+    }
+
+    public GuiPlatformProvider getGuiProvider() {
+        return guiProvider;
+    }
+
     public List<ShotBoxPlatformProvider> getAllProviders(){
         List<ShotBoxPlatformProvider> providers = new ArrayList<>();
         providers.add(cameraProvider);
@@ -71,6 +85,8 @@ public class ProvidersManager {
         providers.add(imageHandlerProvider);
         providers.add(imageFilterProvider);
         providers.add(sceneProvider);
+        providers.add(countdownProvider);
+        providers.add(guiProvider);
         return providers;
     }
 

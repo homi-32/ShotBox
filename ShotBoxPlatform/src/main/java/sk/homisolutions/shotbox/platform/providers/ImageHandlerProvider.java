@@ -1,5 +1,6 @@
 package sk.homisolutions.shotbox.platform.providers;
 
+import sk.homisolutions.shotbox.platform.managers.CountdownManager;
 import sk.homisolutions.shotbox.platform.managers.ModulesManager;
 import sk.homisolutions.shotbox.platform.managers.WorkflowManager;
 import sk.homisolutions.shotbox.tools.api.external.general.ShotBoxExternalModule;
@@ -26,7 +27,12 @@ public class ImageHandlerProvider implements ImageHandlerPlatformProvider {
         }
     }
 
-   /*
+    @Override
+    public Long getMillisToTakingShot() {
+        return CountdownManager.getInstance().getMillisToTakingShot();
+    }
+
+    /*
    lately:
 
    void providePhotosList(String[] list);

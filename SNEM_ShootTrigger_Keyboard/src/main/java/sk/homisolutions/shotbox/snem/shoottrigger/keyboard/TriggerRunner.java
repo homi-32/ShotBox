@@ -24,7 +24,7 @@ public class TriggerRunner implements ShootTrigger{
 
     @Override
     public void run() {
-        System.out.println("------TRIGGER STARTS------");
+//        System.out.println("------TRIGGER STARTS------");
 
         String line = "";
         try {

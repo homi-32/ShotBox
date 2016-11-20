@@ -28,16 +28,16 @@ public class StoringService implements ImageHandler {
 
     @Override
     public void handleImage(TakenPicture picture) {
-        logger.fatal("storing picture");
+        logger.info("storing picture");
         String filepath = resolveFilePath(picture);
 
         OutputStream out = null;
         try {
-            logger.fatal("Storing picture to: " +filepath);
+            logger.info("Storing picture to: " +filepath);
             out = new FileOutputStream(filepath);
             out.write(picture.getPicture());
             out.flush();
-            logger.fatal("picture stored");
+            logger.info("picture stored");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

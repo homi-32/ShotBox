@@ -1,5 +1,6 @@
 package sk.homisolutions.shotbox.platform.providers;
 
+import sk.homisolutions.shotbox.platform.managers.CountdownManager;
 import sk.homisolutions.shotbox.platform.managers.ModulesManager;
 import sk.homisolutions.shotbox.tools.api.external.general.ShotBoxExternalModule;
 import sk.homisolutions.shotbox.tools.api.external.imageprocessing.ImageFilter;
@@ -24,5 +25,10 @@ public class ImageFilterProvider implements ImageFilterPlatformProvider {
         synchronized (ImageFilterProvider.class){
             ModulesManager.getInstance().propagateMessage(message, module);
         }
+    }
+
+    @Override
+    public Long getMillisToTakingShot() {
+        return CountdownManager.getInstance().getMillisToTakingShot();
     }
 }

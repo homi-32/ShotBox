@@ -36,7 +36,8 @@ public class GuiService {
     @GET
     @Path("getState")
     public String getPlatformState(){
-        return stateManager.getState().getString();
+        String s = stateManager.getState().getString();
+        return s;
     }
 
     @GET

@@ -28,7 +28,7 @@ public class StateManager {
     public void setStateCountdown(){synchronized (StateManager.class){state = GuiState.COUNTDOWN;}}
     public void setStateTakingPicture(){synchronized (StateManager.class){arePicturesBlocked=false;state = GuiState.TAKING_PICTURE; communicator.triggerTakingShot();}}
     public void allPicturesAreTaken() {synchronized (StateManager.class){state = GuiState.PHOTO_IS_TAKEN;}}
-    public void setStatePhotoProvided(TakenPicture picture, String pathToResources){synchronized (StateManager.class){tempPicture = new TemporaryPicture(picture, pathToResources); state = GuiState.PHOTO_PROVIDED;this.picture=picture;}}
+    public void setStatePhotoProvided(TakenPicture picture, String pathToResources){synchronized (StateManager.class){this.picture=picture;tempPicture = new TemporaryPicture(picture, pathToResources);state = GuiState.PHOTO_PROVIDED;}}
     public void setStatePlatformIsBusy(String message){synchronized (StateManager.class){state = GuiState.BUSY; busyMessage = message;}}
 
     //helper methods

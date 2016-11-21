@@ -12,6 +12,9 @@ import sk.homisolutions.shotbox.tools.models.TakenPicture;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by homi on 11/1/16.
@@ -26,11 +29,13 @@ public class GuiAdapter implements GraphicalInterface, PlatformCommunicator {
     private GuiPlatformProvider provider;
     private EmbeddedServer server;
     private StateManager stateManager;
+    private List<TakenPicture> bufferedPhotos;
 
     public GuiAdapter(){
         logger.info("GUI module instantiated");
         INSTANCE = this;
         stateManager = StateManager.getInstance();
+        bufferedPhotos = Collections.synchronizedList(new LinkedList<>());
     }
 
     public static GuiAdapter getINSTANCE(){
@@ -51,15 +56,23 @@ public class GuiAdapter implements GraphicalInterface, PlatformCommunicator {
     public void showPicture(TakenPicture picture) {
         synchronized (GuiAdapter.class) {
             if (stateManager.getState() != GuiState.PHOTO_PROVIDED) {
-                logger.fatal("photo is showed: " +picture.getFilename());
                 stateManager.setStatePhotoProvided(picture, pathToWebApplication);
+                logger.info("Photo is sent to GUI: " +picture.getFilename());
             } else {
                 //if there is too much pictures to show, some type of buffer is needed, like this one:
-                new Thread(new Runnable() {
-                    private TakenPicture threadPic = picture;
-                    @Override
-                    public void run() {
-                        logger.fatal("photo is buffered: " +threadPic.getFilename());
+                bufferPicture(picture);
+            }
+        }
+    }
+
+    private void bufferPicture(TakenPicture picture) {
+        logger.info("Photo is buffered: " + picture.getFilename());
+        bufferedPhotos.add(picture);
+        if(bufferedPhotos.size()==1) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (bufferedPhotos.size() > 0) {
                         while (stateManager.getState() != GuiState.DECISION_PROVIDED) {
                             try {
                                 Thread.sleep(300);
@@ -68,19 +81,23 @@ public class GuiAdapter implements GraphicalInterface, PlatformCommunicator {
                             }
                         }
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(1200);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        if(!stateManager.arePicturesBlocked()){
-                                showPicture(threadPic);
-                            }else{
-                                logger.fatal("photo is thrown: " +threadPic.getFilename());
-                                userWantPicture(false, threadPic);
+                        if (!stateManager.arePicturesBlocked()) {
+                            showPicture(bufferedPhotos.get(0));
+                            bufferedPhotos.remove(0);
+                        } else {
+                            while (bufferedPhotos.size() > 0) {
+                                logger.info("Buffered photo is thrown: " + bufferedPhotos.get(0).getFilename());
+                                userWantPicture(false, bufferedPhotos.get(0));
+                                bufferedPhotos.remove(0);
                             }
+                        }
                     }
-                }).start();
-            }
+                }
+            }).start();
         }
     }
 
@@ -133,7 +150,6 @@ public class GuiAdapter implements GraphicalInterface, PlatformCommunicator {
                 @Override
                 public void run() {
                     provider.pictureIsApproved(decision, picture);
-                    logger.fatal(StateManager.getInstance().getState());
                 }
             }).start();
         }

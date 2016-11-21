@@ -9,6 +9,7 @@ public enum GuiState {
     TAKING_PICTURE("taking-picture"),
     PHOTO_IS_TAKEN("photo-is-taken"),
     PHOTO_PROVIDED("photo-provided-waiting-for-decision"),
+    DECISION_PROVIDED("decision-provided"),
     BUSY("platform-is-busy");
 
     private String state;

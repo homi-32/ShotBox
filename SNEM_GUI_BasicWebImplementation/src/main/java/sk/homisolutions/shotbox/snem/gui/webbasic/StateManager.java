@@ -16,6 +16,7 @@ public class StateManager {
     private TakenPicture picture;
     private TemporaryPicture tempPicture;
     private String busyMessage = "";
+    private boolean arePicturesBlocked = false;
 
     private StateManager() {/*singleton*/}
     public static StateManager getInstance(){return INSTANCE;}
@@ -25,7 +26,7 @@ public class StateManager {
     //Setting state methods
     public void setStateReady(){synchronized (StateManager.class){state = GuiState.READY;}}
     public void setStateCountdown(){synchronized (StateManager.class){state = GuiState.COUNTDOWN;}}
-    public void setStateTakingPicture(){synchronized (StateManager.class){state = GuiState.TAKING_PICTURE; communicator.triggerTakingShot();}}
+    public void setStateTakingPicture(){synchronized (StateManager.class){arePicturesBlocked=false;state = GuiState.TAKING_PICTURE; communicator.triggerTakingShot();}}
     public void allPicturesAreTaken() {synchronized (StateManager.class){state = GuiState.PHOTO_IS_TAKEN;}}
     public void setStatePhotoProvided(TakenPicture picture, String pathToResources){synchronized (StateManager.class){tempPicture = new TemporaryPicture(picture, pathToResources); state = GuiState.PHOTO_PROVIDED;this.picture=picture;}}
     public void setStatePlatformIsBusy(String message){synchronized (StateManager.class){state = GuiState.BUSY; busyMessage = message;}}
@@ -33,6 +34,8 @@ public class StateManager {
     //helper methods
     public Long getMillisToTakingShot(){synchronized (StateManager.class){return communicator.getMillisToTakingShot();}}
     public String getBusyMessage() {synchronized (StateManager.class){return busyMessage;}}
-    public void userWantPicture(Boolean userDecision) {synchronized (StateManager.class){communicator.userWantPicture(userDecision, picture);}}
-    public String getTempFilePath(){synchronized (StateManager.class){return tempPicture.getLocalPathToPicture();}};
+    public void userWantPicture(Boolean userDecision) {synchronized (StateManager.class){state=GuiState.DECISION_PROVIDED;communicator.userWantPicture(userDecision, picture);}}
+    public String getTempFilePath(){synchronized (StateManager.class){return tempPicture.getLocalPathToPicture();}}
+    public void blockAllPictures() {synchronized (StateManager.class){arePicturesBlocked=true;}}
+    public boolean arePicturesBlocked() {synchronized (StateManager.class){return arePicturesBlocked;}}
 }

@@ -53,6 +53,13 @@ public class GuiService {
         return userDecision;
     }
 
+    @GET
+    @Path("blockPhotos")
+    public boolean blockAllIncommingPhotos(){
+        stateManager.blockAllPictures();
+        return true;
+    }
+
 //    not using at this time
 //    @GET
 //    @Path("getPhotoPath")

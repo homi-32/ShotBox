@@ -49,7 +49,39 @@ public class GuiAdapter implements GraphicalInterface, PlatformCommunicator {
 
     @Override
     public void showPicture(TakenPicture picture) {
-        stateManager.setStatePhotoProvided(picture, pathToWebApplication);
+        synchronized (GuiAdapter.class) {
+            if (stateManager.getState() != GuiState.PHOTO_PROVIDED) {
+                logger.fatal("photo is showed: " +picture.getFilename());
+                stateManager.setStatePhotoProvided(picture, pathToWebApplication);
+            } else {
+                //if there is too much pictures to show, some type of buffer is needed, like this one:
+                new Thread(new Runnable() {
+                    private TakenPicture threadPic = picture;
+                    @Override
+                    public void run() {
+                        logger.fatal("photo is buffered: " +threadPic.getFilename());
+                        while (stateManager.getState() != GuiState.DECISION_PROVIDED) {
+                            try {
+                                Thread.sleep(300);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if(!stateManager.arePicturesBlocked()){
+                                showPicture(threadPic);
+                            }else{
+                                logger.fatal("photo is thrown: " +threadPic.getFilename());
+                                userWantPicture(false, threadPic);
+                            }
+                    }
+                }).start();
+            }
+        }
     }
 
     @Override
@@ -76,7 +108,8 @@ public class GuiAdapter implements GraphicalInterface, PlatformCommunicator {
 
     @Override
     public void allPicturesAreTaken() {
-        stateManager.allPicturesAreTaken();
+        //not important right now
+//        stateManager.allPicturesAreTaken();
     }
 
     @Override
@@ -95,7 +128,15 @@ public class GuiAdapter implements GraphicalInterface, PlatformCommunicator {
 
     @Override
     public void userWantPicture(boolean decision, TakenPicture picture) {
-        provider.pictureIsApproved(decision, picture);
+        synchronized (GuiAdapter.class) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    provider.pictureIsApproved(decision, picture);
+                    logger.fatal(StateManager.getInstance().getState());
+                }
+            }).start();
+        }
     }
 
     private void secondSetup() {

@@ -1,0 +1,19 @@
+{
+  "name": "Photo Filter: Sharpen",
+  "implementation_packages": [
+    "sk.homisolutions.shotbox.snem.photofilter.sharpen"
+  ],
+  "settings_packages:" : [
+    ""
+  ],
+  "icon": "",
+
+  "author": "Homi",
+  "version": "1.0",
+  "description": "To make photo more sharped",
+  "contacts": [
+    "homisolutions@gmail.com"
+  ],
+  "update_url": "https://github.com/homi-32/ShotBox/",
+  "version_name": ""
+}

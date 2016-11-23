@@ -44,6 +44,7 @@
         <version>0.1.0-Developing</version>
     </parent>
 
+    <packaging>jar</packaging>
     <artifactId>SNEM_GUI_BasicWebImplementation</artifactId>
 
     <build>

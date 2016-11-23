@@ -1,0 +1,19 @@
+{
+  "name": "Photo Filter: Median",
+  "implementation_packages": [
+    "sk.homisolutions.shotbox.snem.photofilter.median"
+  ],
+  "settings_packages:" : [
+    ""
+  ],
+  "icon": "",
+
+  "author": "Homi",
+  "version": "1.0",
+  "description": "For removing noise from photo",
+  "contacts": [
+    "homisolutions@gmail.com"
+  ],
+  "update_url": "https://github.com/homi-32/ShotBox/",
+  "version_name": ""
+}

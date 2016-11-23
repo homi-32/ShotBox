@@ -50,6 +50,12 @@
         <!-- Implementation of Graphical User Interface for showing photos and triggering shots-->
         <module>SNEM_GUI_BasicWebImplementation</module>
 
+        <!-- Implementation of manually written photo filter Median -->
+        <module>SNEM_PhotoFilter_Median</module>
+
+        <!-- Implementation of manually written photo filter Sharpen -->
+        <module>SNEM_PhotoFilter_Sharpen</module>
+
     </modules>
 
     <properties>

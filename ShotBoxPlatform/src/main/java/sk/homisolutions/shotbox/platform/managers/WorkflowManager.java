@@ -9,6 +9,7 @@ import sk.homisolutions.shotbox.tools.api.external.scene.SceneController;
 import sk.homisolutions.shotbox.tools.api.external.trigger.ShootTrigger;
 import sk.homisolutions.shotbox.tools.api.external.userinterface.GraphicalInterface;
 import sk.homisolutions.shotbox.tools.models.TakenPicture;
+import sun.reflect.generics.reflectiveObjects.LazyReflectiveObjectGenerator;
 
 import java.util.*;
 
@@ -39,6 +40,7 @@ public class WorkflowManager {
     private boolean sceneSetupProcessIsEnabled;
     private boolean shotCanBeTaken;
     private boolean sceneCanBeTurnedOff;
+    private boolean scenesAreNotTurnedOffYet;
     private boolean allowToProvidePicture;
     private boolean userCanSendPhotoDecision;
     private boolean allowToHandlingPictures;
@@ -102,6 +104,7 @@ public class WorkflowManager {
         sceneSetupProcessIsEnabled = false;
         shotCanBeTaken = false;
         sceneCanBeTurnedOff = false;
+        scenesAreNotTurnedOffYet = false;
         allowToProvidePicture = false;
         userCanSendPhotoDecision = false;
         allowToHandlingPictures = false;
@@ -240,6 +243,7 @@ public class WorkflowManager {
     //order every scene controller to setup and register it
     private void prepareDevicesToTakingShot() {
         sceneSetupProcessIsEnabled = true;
+        scenesAreNotTurnedOffYet = true;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -316,11 +320,13 @@ public class WorkflowManager {
                     }
                 }
 
+
                 //if every camera took picture, GUIs are notified
                 notifyGuiThatShotIsAlreadyTaken();
 
                 //scenes can be released
-                if (ModulesManager.getInstance().isAnySceneControllerAvailable()) {
+                if (ModulesManager.getInstance().isAnySceneControllerAvailable() && scenesAreNotTurnedOffYet) {
+                    scenesAreNotTurnedOffYet = false;
                     releaseDeviceAfterTakingShot();
                 }
             }
@@ -369,14 +375,18 @@ public class WorkflowManager {
              */
             if (ModulesManager.getInstance().isAnyImageFilterAvailable()) {
                 //no matter if gui is available, photo must be filtered first
+                logger.info("filters will be applied for: " +picture.getFilename());
                 applyPhotoFilters(picture);
             } else {
+                logger.info("no filter available");
                 //filters are not available
                 if(ModulesManager.getInstance().isAnyGraphicalInterfaceAvailable()){
+                    logger.info("showing picture to user: " +picture.getFilename());
                     //gui is available, but filters not: photo is showed to user
                     userCanSendPhotoDecision = true;
                     showPictureToUserAndWaitForUserDecision(picture);
                 }else {
+                    logger.info("no GUI, propagating picture : " +picture.getFilename());
                     //gui is not available, nor filters: photo is automatically propagated
                     List<TakenPicture> pictures = new ArrayList<>();
                     pictures.add(picture);
@@ -429,15 +439,19 @@ public class WorkflowManager {
         new Thread(){
             @Override
             public void run() {
+                logger.info("start applying filters for photo: " +picture.getFilename());
                 List<TakenPicture> pictures = new LinkedList<>();
                 pictures.add(picture);
                 for(ImageFilter filter: ModulesManager.getInstance().getImageFilterModules()){
+                    logger.info("using filter: "+filter.toString()+" for photo: " +picture.getFilename());
                     pictures = filter.applyFilter(pictures);
                 }
                 if(ModulesManager.getInstance().isAnyGraphicalInterfaceAvailable()){
+                    logger.info("showing photo to user: " +picture.getFilename());
                     userCanSendPhotoDecision = true;
                     showPicturesToUserAndWaitForUserDecision(pictures);
                 }else {
+                    logger.info("no GUI available, propagating photo: " +picture.getFilename());
                     propagatePhoto(pictures);
                 }
             }
@@ -462,6 +476,7 @@ public class WorkflowManager {
     private void showPicturesToUserAndWaitForUserDecision(List<TakenPicture> pictures){
         synchronized (WorkflowManager.class) {
             for (TakenPicture p : pictures) {
+                logger.info("showing photo to user: " +p.getFilename());
                 showPictureToUserAndWaitForUserDecision(p);
             }
         }
@@ -523,16 +538,19 @@ public class WorkflowManager {
 
     private void propagatePhoto(List<TakenPicture> pictures){
         synchronized (WorkflowManager.class) {
+            logger.info("calling propagate");
             allowToHandlingPictures = true;
             registerUnhandledPhotos(pictures);
             if(!allCamerasProvidedPhotos){
                 checkIfAllCamerasProvidedPhoto();
             }
             for(ImageHandler handler: ModulesManager.getInstance().getImageHandlerModules()){
+                logger.info("photo propagator: " +handler.toString());
                 new Thread(){
                     @Override
                     public void run() {
                         for(TakenPicture picture: pictures){
+                            logger.info("propagating photo: " +picture.getFilename());
                             handler.handleImage(picture);
                         }
                     }

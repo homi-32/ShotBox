@@ -1,0 +1,19 @@
+{
+  "name": "RPI GPIO17 Controller",
+  "implementation_packages": [
+    "sk.homisolutions.shotbox.snem.scenecontroller.rpigpiocontroller"
+  ],
+  "settings_packages:" : [
+    ""
+  ],
+  "icon": "",
+
+  "author": "Homi",
+  "version": "1.0",
+  "description": "This module is controlling Raspberry Pi GPIO17 pin. It turns it on high and low. This can be used, for example, to turn on lights.",
+  "contacts": [
+    "homisolutions@gmail.com"
+  ],
+  "update_url": "https://github.com/homi-32/ShotBox/",
+  "version_name": ""
+}

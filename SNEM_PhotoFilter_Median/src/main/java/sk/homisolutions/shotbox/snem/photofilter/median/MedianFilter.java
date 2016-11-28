@@ -13,7 +13,9 @@ import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,7 +38,9 @@ public class MedianFilter implements ImageFilter {
 
     @Override
     public List<TakenPicture> applyFilter(List<TakenPicture> pictures) {
+        System.out.println(new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime())+"Median filter received pictures");
         for (TakenPicture pic: pictures){
+            System.out.println(new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime())+"Median filter: applying to " +pic.getFilename());
             try(ByteArrayOutputStream byteOut = new ByteArrayOutputStream()) {
                 BufferedImage img = ImageIO.read(new ByteArrayInputStream(pic.getPicture()));
 
@@ -74,6 +78,7 @@ public class MedianFilter implements ImageFilter {
                 e.printStackTrace();
             }
         }
+        System.out.println(new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime())+"Median filter: returning pictures.");
         return pictures;
     }
 

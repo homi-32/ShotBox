@@ -56,6 +56,22 @@
         <!-- Implementation of manually written photo filter Sharpen -->
         <module>SNEM_PhotoFilter_Sharpen</module>
 
+        <!-- Module created only for testing purpose -->
+        <module>SNEM_PhotoFilter_TestFilter01</module>
+
+        <!-- Module created only for testing purpose -->
+        <module>SNEM_PhotoFilter_TestFilter02</module>
+
+        <!-- Module created only for testing purpose -->
+        <module>SNEM_PhotoFilter_TestFilter03</module>
+
+        <!-- Example implementation of Scene Controller. This module just set RPI pin GPIO17 to high output,
+          which can, for example, turn on LED diode. -->
+        <module>SNEM_SceneController_RpioGpio17Controller</module>
+
+        <!-- Module created only for testing purpose -->
+        <module>SNEM_SceneController_Testing_MockedController</module>
+
     </modules>
 
     <properties>

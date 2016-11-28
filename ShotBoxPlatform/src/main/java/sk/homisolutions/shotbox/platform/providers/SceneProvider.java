@@ -26,7 +26,7 @@ public class SceneProvider implements ScenePlatformProvider {
     @Override
     public void sceneIsReleased(SceneController controller) {
         synchronized (SceneProvider.class) {
-            logger.info("All scenes are released");
+            logger.info("Scenes is released: " +controller.toString());
         }
     }
 

@@ -1,0 +1,19 @@
+{
+  "name": "Test Scene Controller",
+  "implementation_packages": [
+    "sk.homisolutions.shotbox.snem.scenecontroller.test"
+  ],
+  "settings_packages:" : [
+    ""
+  ],
+  "icon": "",
+
+  "author": "Homi",
+  "version": "1.0",
+  "description": "This is only for testing",
+  "contacts": [
+    "homisolutions@gmail.com"
+  ],
+  "update_url": "https://github.com/homi-32/ShotBox/",
+  "version_name": ""
+}

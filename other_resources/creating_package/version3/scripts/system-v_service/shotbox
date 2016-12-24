@@ -1,0 +1,87 @@
+#!/bin/sh
+# kFreeBSD do not accept scripts as interpreters, using #!/bin/sh and sourcing.
+if [ true != "$INIT_D_SCRIPT_SOURCED" ] ; then
+    set "$0" "$@"; INIT_D_SCRIPT_SOURCED=true . /lib/init/init-d-script
+fi
+### BEGIN INIT INFO
+# Provides:          shotbox
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: remote script for shotbox
+# Description:       Control daemon for ShotBox platform.
+### END INIT INFO
+
+# Author: Martin Homola <homisolutions@gmail.com>
+
+
+DESC="Control daemon for ShotBox platform."
+DAEMON=/opt/shotbox/start.sh
+
+SERVICE_NAME=shotbox
+PATH_TO_JAR=/opt/shotbox/shotbox.jar
+PID_PATH_NAME=/tmp/shotbox-pid
+case $1 in
+    start)
+        echo "Starting ${SERVICE_NAME}"
+        sudo sh ${DAEMON}
+#        if [ ! -f $PID_PATH_NAME ]; then
+#            nohup java -jar $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &
+#                        echo $! > $PID_PATH_NAME
+#            echo "$SERVICE_NAME started ..."
+#        else
+#            echo "$SERVICE_NAME is already running ..."
+#        fi
+    ;;
+    stop)
+         echo "not available at this time"
+#        if [ -f $PID_PATH_NAME ]; then
+#            PID=$(cat $PID_PATH_NAME);
+#            echo "$SERVICE_NAME stoping ..."
+#            kill $PID;
+#            echo "$SERVICE_NAME stopped ..."
+#            rm $PID_PATH_NAME
+#        else
+#            echo "$SERVICE_NAME is not running ..."
+#        fi
+    ;;
+    restart)
+        echo "restarting not implemented at this time"
+#        if [ -f $PID_PATH_NAME ]; then
+#            PID=$(cat $PID_PATH_NAME);
+#            echo "$SERVICE_NAME stopping ...";
+#            kill $PID;
+#            echo "$SERVICE_NAME stopped ...";
+#            rm $PID_PATH_NAME
+#            echo "$SERVICE_NAME starting ..."
+#            nohup java -jar $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &
+#                        echo $! > $PID_PATH_NAME
+#            echo "$SERVICE_NAME started ..."
+#        else
+#            echo "$SERVICE_NAME is not running ..."
+#        fi
+    ;;
+#    install-module)
+#        cp $2 /opt/shotbox/libs/
+#        echo "Module is installed. Restart ShotBox to load it."
+#    ;;
+    where-install-module)
+        echo "Modules can be coppied to:\n/opt/shotbox/libs/\n"
+    ;;
+    remove-module)
+        rm -fv /opt/shotbox/libs/$2
+        echo "Module is removed. Module will not be loaded after restarting ShotBox."
+    ;;
+    list-modules)
+        echo "Installed modules in ShotBox: \n"
+        ls -l /opt/shotbox/libs/
+    ;;
+    get-photos-path)
+        echo "Photos created by SNEM PicturePublisher Storing can be found in:\n/opt/shotbox/photos\n"
+    ;;
+    *)
+        echo "Supported arguments: start|stop|where-install-module|remove-module module_name|list-modules|get-photos-path"
+esac
+
+

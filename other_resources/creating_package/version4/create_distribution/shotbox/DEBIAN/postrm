@@ -1,0 +1,7 @@
+#!/bin/sh
+if [ -e /opt/shotbox ];
+then
+ rm -rfv /opt/shotbox/
+fi
+mkdir -p /opt
+systemctl daemon-reload

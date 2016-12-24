@@ -1,0 +1,10 @@
+#!/bin/sh
+#if service --status-all | grep -Fq 'shotbox';
+#then
+# service shotbox stop
+# update-rc.d -f shotbox remove
+#fi
+if [ -e /etc/systemd/system/shotbox.service ];
+then
+ systemctl stop shotbox
+fi

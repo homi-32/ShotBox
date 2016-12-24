@@ -1,0 +1,8 @@
+Package: shotbox
+Version: 1.0-1
+Section: base
+Priority: optional
+Architecture: all
+Maintainer: Martin Homola <homisolutions@gmail.com>
+Description: ShotBox
+ Universal Java-based software platform for Photo boxes.

@@ -1,0 +1,93 @@
+#!/bin/sh
+
+SERVICE_NAME=ShotBox
+
+case $1 in
+    start)
+        echo "Starting ${SERVICE_NAME}"
+        sudo systemctl start shotbox.service
+        systemctl status shotbox.service | grep Active
+#        if [ ! -f $PID_PATH_NAME ]; then
+#            nohup java -jar $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &
+#                        echo $! > $PID_PATH_NAME
+#            echo "$SERVICE_NAME started ..."
+#        else
+#            echo "$SERVICE_NAME is already running ..."
+#        fi
+    ;;
+    stop)
+        echo "Stopping ${SERVICE_NAME}"
+        sudo systemctl stop shotbox.service
+        systemctl status shotbox.service | grep Active
+#        if [ -f $PID_PATH_NAME ]; then
+#            PID=$(cat $PID_PATH_NAME);
+#            echo "$SERVICE_NAME stoping ..."
+#            kill $PID;
+#            echo "$SERVICE_NAME stopped ..."
+#            rm $PID_PATH_NAME
+#        else
+#            echo "$SERVICE_NAME is not running ..."
+#        fi
+    ;;
+    restart)
+        echo "Restarting ${SERVICE_NAME}"
+        sudo systemctl restart shotbox.service
+        systemctl status shotbox.service | grep Active
+#        if [ -f $PID_PATH_NAME ]; then
+#            PID=$(cat $PID_PATH_NAME);
+#            echo "$SERVICE_NAME stopping ...";
+#            kill $PID;
+#            echo "$SERVICE_NAME stopped ...";
+#            rm $PID_PATH_NAME
+#            echo "$SERVICE_NAME starting ..."
+#            nohup java -jar $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &
+#                        echo $! > $PID_PATH_NAME
+#            echo "$SERVICE_NAME started ..."
+#        else
+#            echo "$SERVICE_NAME is not running ..."
+#        fi
+    ;;
+    status)
+        systemctl status shotbox.service | grep 'shotbox.service - '
+        systemctl status shotbox.service | grep 'Active:'
+        systemctl status shotbox.service | grep 'Main PID:'
+    ;;
+    all-status)
+        systemctl status shotbox.service -l
+    ;;
+    install-module)
+        echo "Installing module: " $2
+        if [ -e $2 ];
+        then
+          cp $2 /opt/shotbox/libs/
+          echo "To taking effect of instalation run 'shotbox restart'"
+        else
+          echo "File name is not correct or other error eccured.\nIf you have problem with installing, consider to use 'shotbox where-install-module'"
+        fi
+        #cp $2 /opt/shotbox/libs/
+        #echo "Module is installed. Restart ShotBox to load it."
+    ;;
+    where-install-module)
+        echo "Modules can be coppied manually to:\n/opt/shotbox/libs/\n"
+    ;;
+    remove-module)
+        if [ -e /opt/shotbox/libs/$2 ];
+        then
+          rm -fv /opt/shotbox/libs/$2
+          echo "Module is removed. Module will not be loaded after restarting ShotBox."
+        else
+          echo "Module name ''"$2"'' is wrong. Module with this name does not exists."
+        fi
+    ;;
+    list-modules)
+        echo "Installed modules in ShotBox: \n"
+        ls -l /opt/shotbox/libs/
+    ;;
+    get-photos-path)
+        echo "Photos created by SNEM PicturePublisher Storing can be found in:\n/opt/shotbox/photos\n"
+    ;;
+    *)
+        echo "ShotBox: Java-based Photobox platform"
+        echo "Take photos - Save moments"
+        echo "Supported arguments: start|stop|restart|status|all-status|where-install-module|install-module module_path|remove-module module_name|list-modules|get-photos-path"
+esac

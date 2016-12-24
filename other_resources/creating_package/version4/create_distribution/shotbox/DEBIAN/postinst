@@ -1,0 +1,24 @@
+#!/bin/sh
+chmod 664 /tmp/shotbox-pid
+if [ -e /opt/shotbox/start.sh ];
+then
+ chmod 0755 /opt/shotbox/start.sh
+fi
+if [ -e /tmp/shotbox-pid ];
+then
+ chmod 664 /tmp/shotbox-pid
+fi
+if [ -e /usr/bin/shotbox ];
+then
+ chmod 0755 /usr/bin/shotbox
+fi
+if [ -e /etc/systemd/system/shotbox.service ];
+then
+ chmod 664 /etc/systemd/system/shotbox.service
+ systemctl daemon-reload
+ systemctl start shotbox.service
+
+ #to start service no boot:
+ systemctl enable shotbox
+fi
+#start service

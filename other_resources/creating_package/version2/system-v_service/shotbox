@@ -1,0 +1,64 @@
+#!/bin/sh
+# /etc/init.d/shotbox
+SERVICE_NAME=shotbox
+PATH_TO_JAR=/opt/shotbox/shotbox.jar
+PID_PATH_NAME=/tmp/shotbox-pid
+case $1 in
+    start)
+        echo "Starting $SERVICE_NAME ..."
+        if [ ! -f $PID_PATH_NAME ]; then
+            nohup java -jar $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &
+                        echo $! > $PID_PATH_NAME
+            echo "$SERVICE_NAME started ..."
+        else
+            echo "$SERVICE_NAME is already running ..."
+        fi
+    ;;
+    stop)
+        if [ -f $PID_PATH_NAME ]; then
+            PID=$(cat $PID_PATH_NAME);
+            echo "$SERVICE_NAME stoping ..."
+            kill $PID;
+            echo "$SERVICE_NAME stopped ..."
+            rm $PID_PATH_NAME
+        else
+            echo "$SERVICE_NAME is not running ..."
+        fi
+    ;;
+    restart)
+        if [ -f $PID_PATH_NAME ]; then
+            PID=$(cat $PID_PATH_NAME);
+            echo "$SERVICE_NAME stopping ...";
+            kill $PID;
+            echo "$SERVICE_NAME stopped ...";
+            rm $PID_PATH_NAME
+            echo "$SERVICE_NAME starting ..."
+            nohup java -jar $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &
+                        echo $! > $PID_PATH_NAME
+            echo "$SERVICE_NAME started ..."
+        else
+            echo "$SERVICE_NAME is not running ..."
+        fi
+    ;;
+#    install-module)
+#        cp $2 /opt/shotbox/libs/
+#        echo "Module is installed. Restart ShotBox to load it."
+#    ;;
+    where-install-module)
+        echo "Modules tak be coppied to:\n/opt/shotbox/libs/\n"
+    ;;
+    remove-module)
+        rm -fv /opt/shotbox/libs/$2
+        echo "Module is removed. Module will not be loaded after restarting ShotBox."
+    ;;
+    list-modules)
+        echo "Installed modules in ShotBox: \n"
+        ls -l /opt/shotbox/libs/
+    ;;
+    get-photos-path)
+        echo "Photos created by SNEM PicturePublisher Storing can be found in:\n/opt/shotbox/photos\n"
+    ;;
+    *)
+        echo "Supported arguments: start|stop|restart|where-install-module|remove-module module_name|list-modules|get-photos-path"
+esac
+

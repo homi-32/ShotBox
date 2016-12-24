@@ -1,6 +1,7 @@
 package sk.homisolutions.shotbox.platform;
 
 import org.apache.log4j.Logger;
+import sk.homisolutions.shotbox.platform.logging.SetupLogger;
 import sk.homisolutions.shotbox.platform.managers.ModulesManager;
 import sk.homisolutions.shotbox.platform.managers.ProvidersManager;
 import sk.homisolutions.shotbox.platform.managers.WorkflowManager;
@@ -15,6 +16,9 @@ public class ShotBox {
 
 
     public static void main(String[] args){
+//        SetupLogger.getInstance().transferOutputToLog4j();
+        System.out.println("Working Directory = " +
+                System.getProperty("user.dir"));
         logger.info("Application start");
 
         ShotBox shotbox = new ShotBox();

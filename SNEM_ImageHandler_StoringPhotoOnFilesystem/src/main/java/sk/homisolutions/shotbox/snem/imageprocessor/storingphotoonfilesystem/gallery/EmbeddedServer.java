@@ -1,12 +1,11 @@
-package sk.homisolutions.shotbox.snem.gui.webbasic;
+package sk.homisolutions.shotbox.snem.imageprocessor.storingphotoonfilesystem.gallery;
 
 import org.apache.log4j.Logger;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
-import sk.homisolutions.shotbox.snem.gui.webbasic.services.GuiService;
-import sk.homisolutions.shotbox.snem.gui.webbasic.services.RedirectService;
+import sk.homisolutions.shotbox.snem.imageprocessor.storingphotoonfilesystem.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,22 +19,23 @@ import java.util.Enumeration;
 /**
  * Created by homi on 11/1/16.
  */
-public class EmbeddedServer{
+public class EmbeddedServer {
     private Logger logger = Logger.getLogger(EmbeddedServer.class);
 
-    private static Integer port = 5414;
+    private static Integer port = 6414;
     private static String domain = "";
     private static String BASE_URI = "";
-    private static final String GUI_SUFFIX = "/gui/";
-    private static String URL_TO_GUI = "";
+    private static final String GALLERY_SUFFIX = "/gallery/";
+    private static final String PHOTOS_SUFFIX = "/photos/";
+    private static String URL_TO_GALLERY = "";
     private String pathToWebApplication;
 
     private ResourceConfig config;
     private HttpServer server;
 
-
     public EmbeddedServer(String pathToWebApplication){
         this.pathToWebApplication = pathToWebApplication;
+
         determineHostIpAddress();
         chooseFreePort();
         createUrlAddress();
@@ -57,22 +57,16 @@ public class EmbeddedServer{
     private void createServer() {
         URI uri = URI.create(BASE_URI);
         server = GrizzlyHttpServerFactory.createHttpServer(uri, config);
-        logger.fatal("Gui Server starts. Application is available on address: \n" +uri.toString());
+        logger.fatal("Gallery Server starts. Photos are available on address: \n" +uri.toString());
     }
 
     private void setupServerConfig() {
         config = new ResourceConfig();
-        //while platform is loading external libraries like this one, it breaks some features.
-        //one of this feature is using method 'packages()' for class ResourceConfig
-        //therefore, classes have to be registered manually
-        //there is already reported bug for this issue: https://github.com/homi-32/ShotBox/issues/33
-//        config.packages("sk.homisolutions.shotbox.snem.gui.webbasic.services");
-        config.register(GuiService.class);
-        config.register(RedirectService.class);
+        config.register(GalleryService.class);
     }
 
     private void createUrlAddress() {
-        BASE_URI = "http://"+domain+":"+port;
+        BASE_URI = "http://"+domain+":"+port+"/";
     }
 
     private void determineHostIpAddress() {
@@ -110,9 +104,9 @@ public class EmbeddedServer{
     }
 
     private void adjustWebApplicationForDeployment() {
-        File jsScript = new File(pathToWebApplication +File.separator +"js"+File.separator+"script.js");
+        File jsScript = new File(pathToWebApplication +File.separator +"src"+File.separator+"constants.js");
         if(!jsScript.exists()){
-            throw new SNEM_GUI_BasicWebImplementation_Exception("Server can not locate GUI on file space");
+            throw new RuntimeException("Server can not locate GUI on file space");
         }
         try {
             byte[] encoded = Files.readAllBytes(Paths.get(jsScript.getAbsolutePath()));
@@ -146,19 +140,18 @@ public class EmbeddedServer{
 
     private void setupServer() {
         //setup index html to server as static handler
-        StaticHttpHandler handler = new StaticHttpHandler(pathToWebApplication);
+        StaticHttpHandler webAppHandler = new StaticHttpHandler(pathToWebApplication);
         //there is need to remove lock on static route for files
         //http://stackoverflow.com/questions/13307489/grizzly-locks-static-served-resources
-        handler.setFileCacheEnabled(false);
-        server.getServerConfiguration().addHttpHandler(handler, GUI_SUFFIX);
-        URL_TO_GUI=BASE_URI+ GUI_SUFFIX;
+        webAppHandler.setFileCacheEnabled(false);
+        File photos = new File(Constants.PathToDirectory);
+        StaticHttpHandler photosHandler = new StaticHttpHandler(photos.getAbsolutePath());
+        server.getServerConfiguration().addHttpHandler(webAppHandler, GALLERY_SUFFIX);
+        server.getServerConfiguration().addHttpHandler(photosHandler, PHOTOS_SUFFIX);
+        URL_TO_GALLERY =BASE_URI+ GALLERY_SUFFIX;
     }
 
     public static String getDomain(){
         return BASE_URI;
-    }
-
-    public static String getUrlToGui() {
-        return URL_TO_GUI;
     }
 }

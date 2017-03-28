@@ -57,7 +57,7 @@ public class SharpenFilter implements ImageFilter {
                 ImageIO.write(img,"jpg",byteOut);
                 byteOut.flush();
                 pic.setPicture(byteOut.toByteArray());
-                pic.setFilename(pic.getFilename()+"_filtered with sharpen");
+                pic.setFilename(pic.getFilename()+"_filtered-sharpen");
             } catch (IOException e) {
                 e.printStackTrace();
             }

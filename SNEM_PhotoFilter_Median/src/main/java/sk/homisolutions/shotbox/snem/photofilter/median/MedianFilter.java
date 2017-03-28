@@ -73,7 +73,7 @@ public class MedianFilter implements ImageFilter {
                 ImageIO.write(img,"jpg",byteOut);
                 byteOut.flush();
                 pic.setPicture(byteOut.toByteArray());
-                pic.setFilename(pic.getFilename()+"_filtered with median");
+                pic.setFilename(pic.getFilename()+"_filtered-median");
             } catch (IOException e) {
                 e.printStackTrace();
             }

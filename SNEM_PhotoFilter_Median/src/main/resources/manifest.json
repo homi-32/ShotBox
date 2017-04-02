@@ -1,7 +1,7 @@
 {
   "name": "Photo Filter: Median",
   "implementation_packages": [
-    "sk.homisolutions.shotbox.snem.photofilter.median"
+    "sk.homisolutions.shotbox.snem.photofilter.median.MedianFilter"
   ],
   "settings_packages:" : [
     ""

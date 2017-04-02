@@ -29,33 +29,39 @@ public class TriggerRunner implements ShootTrigger {
 
     public TriggerRunner(){
 
+        logger.info("Instantiate GPIO Trigger");
+
         INSTANCE = this;
 
-        //requesting access to GPIO 4 / Physical pin 7 / PI4J pin 07
-        Pin pin = new ShotboxGpioHelper().resolveGpioPin(Constants.GPIO_PIN);
+        try {
+            //requesting access to GPIO 4 / Physical pin 7 / PI4J pin 07
+            Pin pin = new ShotboxGpioHelper().resolveGpioPin(Constants.GPIO_PIN);
 
-        //in documentation is written, that getInstance is not thread safe, so, maybe will this help?
-        //TODO: will this help?
-        synchronized (GpioFactory.class){
-            gpio = GpioFactory.getInstance();
+            //in documentation is written, that getInstance is not thread safe, so, maybe will this help?
+            //TODO: will this help?
+            synchronized (GpioFactory.class) {
+                gpio = GpioFactory.getInstance();
 
-            //push logic is set to pull down circuit
-            button = gpio.provisionDigitalInputPin(pin, PinPullResistance.PULL_DOWN);
-            //setting pin state, which should be set, if application become terminated
-            button.setShutdownOptions(true, PinState.LOW, PinPullResistance.OFF);
-            //registering listener for button
-            button.addListener(new GpioPinListenerDigital() {
-                @Override
-                public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent gpioPinDigitalStateChangeEvent) {
-                    //if pin is receiving signal (pull down logic), button is pushed
-                    if (gpioPinDigitalStateChangeEvent.getState().isHigh()){
-                        logger.info("Trigger pushed");
-                        provider.takeShoot(INSTANCE);
+                //push logic is set to pull down circuit
+                button = gpio.provisionDigitalInputPin(pin, PinPullResistance.PULL_DOWN);
+                //setting pin state, which should be set, if application become terminated
+                button.setShutdownOptions(true, PinState.LOW, PinPullResistance.OFF);
+                //registering listener for button
+                button.addListener(new GpioPinListenerDigital() {
+                    @Override
+                    public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent gpioPinDigitalStateChangeEvent) {
+                        //if pin is receiving signal (pull down logic), button is pushed
+                        if (gpioPinDigitalStateChangeEvent.getState().isHigh()) {
+                            logger.info("Trigger pushed");
+                            provider.takeShoot(INSTANCE);
+                        }
                     }
-                }
-            });
+                });
+            }
+        }catch (Throwable e){
+            logger.fatal("Error occurs during initializing Raspberry GPIO devices: "+e.getMessage()+". Is GPIO available on Raspberry?");
+            e.printStackTrace();
         }
-
     }
 
     @Override

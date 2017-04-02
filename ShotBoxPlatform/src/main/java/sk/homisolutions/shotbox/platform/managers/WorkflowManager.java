@@ -21,7 +21,7 @@ public class WorkflowManager {
 
     //TODO: this values should be loaded from config file
     /** System Setup **/
-    private Long countdownTimeInSeconds = 5l;
+    private Long countdownTimeInSeconds = 7l;
 
     /** Self managements **/
     private static final Logger logger = Logger.getLogger(WorkflowManager.class);
@@ -204,7 +204,7 @@ public class WorkflowManager {
 
     private void setCountdown() {
         countdownIsSet = true;
-        CountdownManager.getInstance().setupCountdown(5l);
+        CountdownManager.getInstance().setupCountdown(countdownTimeInSeconds);
         countdownIsOver = false;
     }
 

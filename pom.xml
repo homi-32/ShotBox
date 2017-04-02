@@ -47,6 +47,9 @@
         This module is temporary and will removed lately with implementation-->
         <module>SNEM_ImageHandler_StoringPhotoOnFilesystem</module>
 
+        <!-- This is module for sharing photos to web portal Shootr.sk -->
+        <module>SNEM_ImageHandler_SharingToShootrSk</module>
+
         <!-- Implementation of Graphical User Interface for showing photos and triggering shots-->
         <module>SNEM_GUI_BasicWebImplementation</module>
 

@@ -81,10 +81,12 @@ public class EmbeddedServer{
             for (NetworkInterface iface : Collections.list(ifaces)){
                 Enumeration<InetAddress> inetAddresses = iface.getInetAddresses();
                 for (InetAddress inetAddress : Collections.list(inetAddresses)) {
-                    if(!inetAddress.getHostAddress().startsWith("127.") && isIpV4Address(inetAddress.getHostAddress())
-                            //for GOPRO address
-                            && !inetAddress.getHostAddress().startsWith("10.5.5.")
-                            ){
+//                    if(!inetAddress.getHostAddress().startsWith("127.") && isIpV4Address(inetAddress.getHostAddress())
+//                            //for GOPRO address
+//                            && !inetAddress.getHostAddress().startsWith("10.5.5.")
+//                            ){
+                    //GUI shuld be available only on local machine, for now
+                    if(inetAddress.getHostAddress().startsWith("127.")){
                         domain = inetAddress.getHostAddress();
                         break;
                     }

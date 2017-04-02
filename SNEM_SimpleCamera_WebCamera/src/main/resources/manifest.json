@@ -1,7 +1,7 @@
 {
   "name": "Basic Web Camera Module",
   "implementation_packages": [
-    "sk.homisolutions.shotbox.snem.simplecamera.webcamera"
+    "sk.homisolutions.shotbox.snem.simplecamera.webcamera.WebCamRemoteTool"
   ],
   "settings_packages:" : [
     ""

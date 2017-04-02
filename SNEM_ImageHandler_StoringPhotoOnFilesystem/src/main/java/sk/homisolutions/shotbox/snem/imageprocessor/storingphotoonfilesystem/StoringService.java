@@ -25,6 +25,10 @@ public class StoringService implements ImageHandler {
     private EmbeddedServer server;
     private boolean serverIsSetUp = false;
 
+    public StoringService(){
+        logger.info("Initializing Storing Module");
+    }
+
     @Override
     public void setProvider(ImageHandlerPlatformProvider provider) {
         this.provider = provider;

@@ -1,7 +1,7 @@
 {
-  "name": "Photo Saver",
+  "name": "Shootr.SK sharing module",
   "implementation_packages": [
-    "sk.homisolutions.shotbox.snem.imageprocessor.storingphotoonfilesystem.StoringService"
+    "sk.homisolutions.shotbox.snem.imageprocessor.shootrsharing.ShootrConnector"
   ],
   "settings_packages:" : [
     ""
@@ -10,7 +10,7 @@
 
   "author": "Homi",
   "version": "1.0",
-  "description": "For storing photos on filesystem",
+  "description": "For sharing photos on Shoort.SK",
   "contacts": [
     "homisolutions@gmail.com"
   ],

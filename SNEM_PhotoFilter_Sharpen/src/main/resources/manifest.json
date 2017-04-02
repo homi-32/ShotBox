@@ -1,7 +1,7 @@
 {
   "name": "Photo Filter: Sharpen",
   "implementation_packages": [
-    "sk.homisolutions.shotbox.snem.photofilter.sharpen"
+    "sk.homisolutions.shotbox.snem.photofilter.sharpen.SharpenFilter"
   ],
   "settings_packages:" : [
     ""

@@ -106,6 +106,7 @@ public class ModulesManager {
 
 
         for(Class c: loadedClasses){
+            logger.info("*Loading Class: " +c.getName());
 
             //I should avoid to this approach, but I need to analyze suggested approach, before I will use it.
             try {
@@ -115,6 +116,9 @@ public class ModulesManager {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
+            } catch (Throwable t){
+                logger.fatal("An unpredictable fatal error occurred: "+t.getMessage()+". Class cloud not be instantiated.");
+                t.printStackTrace();
             }
 
             //I should instantiate every object by separate thread, becouse I really don't know, what can be executed in Construcotr,

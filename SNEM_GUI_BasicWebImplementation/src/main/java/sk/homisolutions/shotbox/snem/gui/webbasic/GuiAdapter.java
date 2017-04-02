@@ -3,6 +3,7 @@ package sk.homisolutions.shotbox.snem.gui.webbasic;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.log4j.Logger;
+import sk.homisolutions.shotbox.snem.gui.webbasic.gpio_contorller.Gpio;
 import sk.homisolutions.shotbox.snem.gui.webbasic.interfaces.PlatformCommunicator;
 import sk.homisolutions.shotbox.tools.api.external.userinterface.GraphicalInterface;
 import sk.homisolutions.shotbox.tools.api.internal.userinterface.GuiPlatformProvider;
@@ -28,6 +29,7 @@ public class GuiAdapter implements GraphicalInterface, PlatformCommunicator {
 
     private GuiPlatformProvider provider;
     private EmbeddedServer server;
+    private Gpio gpioController;
     private StateManager stateManager;
     private List<TakenPicture> bufferedPhotos;
 
@@ -121,6 +123,9 @@ public class GuiAdapter implements GraphicalInterface, PlatformCommunicator {
     @Override
     public void countdownStarts() {
         stateManager.setStateCountdown();
+        if(gpioController != null){
+            gpioController.showGuiScreen();
+        }
     }
 
     @Override
@@ -161,6 +166,7 @@ public class GuiAdapter implements GraphicalInterface, PlatformCommunicator {
         createTempFileSpace();
         extractGuiToFileSpace();
         initializeServer();
+        initializeGpioController();
     }
 
     private void createTempFileSpace() {
@@ -212,5 +218,14 @@ public class GuiAdapter implements GraphicalInterface, PlatformCommunicator {
     private void initializeServer(){
         //create server
         server = new EmbeddedServer(pathToWebApplication);
+    }
+
+    private void initializeGpioController(){
+        try{
+            gpioController = Gpio.getInstance();
+        }catch (Throwable e){
+            logger.error("Raspberry Pi GPIO is not available.");
+            gpioController = null;
+        }
     }
 }

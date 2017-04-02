@@ -21,14 +21,23 @@ public class RaspberryPiGpio17Controller implements SceneController{
 
     public RaspberryPiGpio17Controller(){
 
-        //requesting access to GPIO 4
-        pin = new ShotboxGpioHelper().resolveGpioPin(gpioPinNumber);
+        logger.info("Instantiate SceneController");
+        try{
+            //in documentation is written, that getInstance is not thread safe, so, maybe will this help?
+            synchronized (GpioFactory.class) {
+                //requesting access to GPIO 4
+                pin = new ShotboxGpioHelper().resolveGpioPin(gpioPinNumber);
 
-        gpio = GpioFactory.getInstance();
+                gpio = GpioFactory.getInstance();
 
-        gpio17 = gpio.provisionDigitalOutputPin(pin);
+                gpio17 = gpio.provisionDigitalOutputPin(pin);
+            }
 
-        logger.info("RPI GPIO17 SceneController instantiated.");
+            logger.info("RPI GPIO17 SceneController instantiated.");
+        }catch (Throwable e){
+            logger.fatal("Error occurs during initializing Raspberry GPIO devices: "+e.getMessage()+". Is GPIO available on Raspberry?");
+            e.printStackTrace();
+        }
     }
 
     @Override

@@ -1,7 +1,7 @@
 {
   "name": "RPI GPIO17 Controller",
   "implementation_packages": [
-    "sk.homisolutions.shotbox.snem.scenecontroller.rpigpiocontroller"
+    "sk.homisolutions.shotbox.snem.scenecontroller.rpigpiocontroller.RaspberryPiGpio17Controller"
   ],
   "settings_packages:" : [
     ""

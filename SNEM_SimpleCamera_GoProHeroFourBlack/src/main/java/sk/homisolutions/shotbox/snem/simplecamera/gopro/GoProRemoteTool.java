@@ -25,7 +25,7 @@ public class GoProRemoteTool implements SimpleCamera {
 
         //TODO create and call method "isGoproConnectedToWifi()"
 
-        executeInitializeCheck();
+//        executeInitializeCheck();
     }
 
     private void executeInitializeCheck() {

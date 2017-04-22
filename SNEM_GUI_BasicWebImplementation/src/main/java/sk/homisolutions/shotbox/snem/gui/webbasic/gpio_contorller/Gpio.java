@@ -3,6 +3,7 @@ package sk.homisolutions.shotbox.snem.gui.webbasic.gpio_contorller;
 import com.pi4j.io.gpio.*;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
+import org.apache.log4j.Logger;
 import sk.homisolutions.shotbox.snem.gui.webbasic.GuiState;
 import sk.homisolutions.shotbox.snem.gui.webbasic.StateManager;
 
@@ -12,6 +13,7 @@ import sk.homisolutions.shotbox.snem.gui.webbasic.StateManager;
 public class Gpio {
     private static Gpio INSTANCE;
     private boolean cameraScreenSelected = true;
+    private static final Logger logger = Logger.getLogger(Gpio.class);
 
     private StateManager stateManager = StateManager.getInstance();
     private ShowScreenBackTimer timer;
@@ -36,18 +38,40 @@ public class Gpio {
         //in documentation is written, that getInstance is not thread safe, so, maybe will this help?
         synchronized (GpioFactory.class){
             gpio = GpioFactory.getInstance();
-            relay = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_02/*GPIO27*/, PinState.LOW);
+            logger.fatal("..............................................Initializing relay state");
+            relay = gpio.provisionDigitalOutputPin(Constants.SWITCH_SCREEN_BUTTON, PinState.LOW);
+            relay.low();
             //setting pin state, which should be set, if application become terminated
             relay.setShutdownOptions(true, PinState.LOW, PinPullResistance.OFF);
         }
     }
 
-    //GPIO27 - RaspiPin.GPIO_02 pi4j representation
     private void switchScreen(){
+//        logger.fatal("4??????????????????????????????????????????????-device called");
         cameraScreenSelected = !cameraScreenSelected;
 
         synchronized (GpioFactory.class){
-            relay.pulse(200, true);
+//            logger.fatal("5??????????????????????????????????????????????-device is used");
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+//                    logger.fatal("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHIGH");
+                    logger.fatal(relay.getState());
+                    relay.high();
+                    logger.fatal(relay.getState());
+                    try {
+                        //5000 when it was working
+                        Thread.sleep(1000l);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+//                    logger.fatal("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOWWWWWWWWWWWWWW");
+                    logger.fatal(relay.getState());
+                    relay.low();
+                    logger.fatal(relay.getState());
+                }
+            }).start();
+//            logger.fatal("6??????????????????????????????????????????????-device already used");
         }
     }
 
@@ -57,6 +81,7 @@ public class Gpio {
     }
 
     public void showCameraScreen(){
+//        logger.fatal("1######################################################## show camera called" +cameraScreenSelected);
         if(!cameraScreenSelected){
             switchScreen();
             timer.dissableTimer();
@@ -64,15 +89,17 @@ public class Gpio {
     }
 
     public void showGuiScreen(){
+//        logger.fatal("2??????????????????????????????????????????????-switch is called" +cameraScreenSelected);
         if(cameraScreenSelected){
+//            logger.fatal("3??????????????????????????????????????????????-switch switched screen");
             switchScreen();
             noUserActionPrevention();
         }
     }
 
-    //GPIO22 - RaspiPin.GPIO_03 pi4j representation
+
     private void setYesButtonTrigger(){
-        Pin pin = RaspiPin.GPIO_03;
+        Pin pin = Constants.YES_BUTTON;
 
         synchronized (GpioFactory.class) {
             //push logic is set to pull down circuit
@@ -86,17 +113,15 @@ public class Gpio {
                     //if pin is receiving signal (pull down logic), button is pushed
                     if (gpioPinDigitalStateChangeEvent.getState().isHigh() && stateManager.getState() == GuiState.PHOTO_PROVIDED) {
                         stateManager.userWantPicture(true);
+                        showCameraScreen();
                     }
                 }
             });
         }
-
-        this.showCameraScreen();
     }
 
-    //GPIO23 - RaspiPin.GPIO_04 pi4j representation
     private void setNoButtonTrigger(){
-        Pin pin = RaspiPin.GPIO_04;
+        Pin pin = Constants.NO_BUTTON;
 
         synchronized (GpioFactory.class) {
             //push logic is set to pull down circuit
@@ -109,12 +134,11 @@ public class Gpio {
                 public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent gpioPinDigitalStateChangeEvent) {
                     //if pin is receiving signal (pull down logic), button is pushed
                     if (gpioPinDigitalStateChangeEvent.getState().isHigh() && stateManager.getState() == GuiState.PHOTO_PROVIDED) {
-                        stateManager.blockAllPictures();
+                        stateManager.userWantPicture(false);
+                        showCameraScreen();
                     }
                 }
             });
         }
-
-        this.showCameraScreen();
     }
 }

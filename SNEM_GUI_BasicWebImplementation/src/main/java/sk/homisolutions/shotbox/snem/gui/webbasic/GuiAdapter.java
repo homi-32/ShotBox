@@ -123,6 +123,7 @@ public class GuiAdapter implements GraphicalInterface, PlatformCommunicator {
     @Override
     public void countdownStarts() {
         stateManager.setStateCountdown();
+//        logger.fatal("1??????????????????????????????????????????????-switch should be called");
         if(gpioController != null){
             gpioController.showGuiScreen();
         }
@@ -131,8 +132,7 @@ public class GuiAdapter implements GraphicalInterface, PlatformCommunicator {
     @Override
     public void allPicturesAreTaken() {
         logger.info("notification from platform: all pictures are provided");
-        //not important right now
-//        stateManager.allPicturesAreTaken();
+        stateManager.allPicturesAreTaken();
     }
 
     @Override

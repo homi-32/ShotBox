@@ -28,16 +28,16 @@ public class GalleryService {
     public String getPhotoPaths(){
         File photosDirectory = new File("./photos");
         List<String> paths = new ArrayList<>();
-        logger.fatal("get photos called");
+//        logger.fatal("get photos called");
         String domain = EmbeddedServer.getDomain() + prefix;
         if(photosDirectory.isDirectory()){
             for(int i = 0; i<photosDirectory.list().length; i++){
                 String url = domain + photosDirectory.list()[i];
-                logger.fatal(url);
+//                logger.fatal(url);
                 paths.add(url);
             }
         }else{
-            logger.error("No Photos are present.");
+//            logger.error("No Photos are present.");
         }
 
         try {

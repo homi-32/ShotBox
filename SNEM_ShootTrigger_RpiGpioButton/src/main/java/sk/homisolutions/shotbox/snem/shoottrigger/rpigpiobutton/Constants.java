@@ -5,5 +5,5 @@ package sk.homisolutions.shotbox.snem.shoottrigger.rpigpiobutton;
  */
 public class Constants {
 
-    public static final String GPIO_PIN="4";
+    public static final String GPIO_PIN="25";
 }

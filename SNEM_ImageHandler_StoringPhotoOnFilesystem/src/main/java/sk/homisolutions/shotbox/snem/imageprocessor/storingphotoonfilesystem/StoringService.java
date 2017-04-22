@@ -107,7 +107,7 @@ public class StoringService implements ImageHandler {
 
         //copy package with gui to file space
         try {
-            Files.copy(jarInput, Paths.get(pathToFileSpace+"/webapp.zip"));
+            Files.copy(jarInput, Paths.get(pathToFileSpace+ "/webapp.zip"));
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("GUI could not be extracted from module. " +
@@ -119,7 +119,7 @@ public class StoringService implements ImageHandler {
 
         //unzip gui
         try {
-            ZipFile zip = new ZipFile(pathToFileSpace+"/webapp.zip");
+            ZipFile zip = new ZipFile(pathToFileSpace+ "/webapp.zip");
             zip.extractAll(pathToWebApplication);
         } catch (ZipException e) {
             e.printStackTrace();
@@ -127,7 +127,7 @@ public class StoringService implements ImageHandler {
         }
 
         //delete zip
-        File zipFile = new File(pathToFileSpace+"/webapp.zip");
+        File zipFile = new File(pathToFileSpace+ "/webapp.zip");
         zipFile.delete();
 
         return pathToWebApplication;

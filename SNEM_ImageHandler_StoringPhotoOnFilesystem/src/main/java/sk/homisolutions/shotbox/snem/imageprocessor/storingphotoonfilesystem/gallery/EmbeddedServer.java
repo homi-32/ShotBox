@@ -55,6 +55,7 @@ public class EmbeddedServer {
     }
 
     private void createServer() {
+        logger.info("Gallery server is going to be instantiated.");
         URI uri = URI.create(BASE_URI);
         server = GrizzlyHttpServerFactory.createHttpServer(uri, config);
         logger.fatal("Gallery Server starts. Photos are available on address: \n" +uri.toString());
@@ -63,15 +64,20 @@ public class EmbeddedServer {
     private void setupServerConfig() {
         config = new ResourceConfig();
         config.register(GalleryService.class);
+        logger.info("Gallery server is set up.");
     }
 
     private void createUrlAddress() {
         BASE_URI = "http://"+domain+":"+port+"/";
+        logger.fatal("Gallery server: this address will be used: " +BASE_URI);
     }
 
     private void determineHostIpAddress() {
         try {
-            Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
+            Enumeration<NetworkInterface> ifaces;
+
+            //part for Raspberry Pi concrete configuration
+            ifaces = NetworkInterface.getNetworkInterfaces();
             for (NetworkInterface iface : Collections.list(ifaces)){
                 Enumeration<InetAddress> inetAddresses = iface.getInetAddresses();
                 for (InetAddress inetAddress : Collections.list(inetAddresses)) {
@@ -83,10 +89,28 @@ public class EmbeddedServer {
                             //for GOPRO address
                             && !inetAddress.getHostAddress().startsWith("10.5.5.")
                             //for Shotbox Prototype
-//                            && iface.getName().equals("wlan0")
+                            && iface.getName().equals("wlan1")
                             ){
                         domain = inetAddress.getHostAddress();
-                        break;
+                        return;
+                    }
+                }
+                if(!domain.equals("")){
+                    break;
+                }
+            }
+
+            //if code is not runned on raspberry, this will work as universal solution:
+            ifaces = NetworkInterface.getNetworkInterfaces();
+            for (NetworkInterface iface : Collections.list(ifaces)){
+                Enumeration<InetAddress> inetAddresses = iface.getInetAddresses();
+                for (InetAddress inetAddress : Collections.list(inetAddresses)) {
+                    if(!inetAddress.getHostAddress().startsWith("127.") && isIpV4Address(inetAddress.getHostAddress())
+                            //for GOPRO address
+                            && !inetAddress.getHostAddress().startsWith("10.5.5.")
+                            ){
+                        domain = inetAddress.getHostAddress();
+                        return;
                     }
                 }
                 if(!domain.equals("")){
@@ -110,6 +134,7 @@ public class EmbeddedServer {
     }
 
     private void adjustWebApplicationForDeployment() {
+        logger.info("Gallery server: adjusting web application.");
         File jsScript = new File(pathToWebApplication +File.separator +"src"+File.separator+"constants.js");
         if(!jsScript.exists()){
             throw new RuntimeException("Server can not locate GUI on file space");
